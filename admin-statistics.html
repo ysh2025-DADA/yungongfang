@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 数据统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        .sidebar-item.active {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-right: 3px solid #8b5cf6;
+        }
+        .stat-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">管理员：18072830839</span>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        控制台概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-users.html'">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>
+                        用户管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        课程管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-warehouse.html'">
+                        <i data-lucide="database" class="h-5 w-5 mr-3"></i>
+                        仓库管理
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-purple-700 rounded-lg cursor-pointer">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        数据统计
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-settings.html'">
+                        <i data-lucide="settings" class="h-5 w-5 mr-3"></i>
+                        系统设置
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">数据统计</h1>
+                    <p class="text-gray-600">查看平台使用情况、用户活跃度、课程数据等统计信息</p>
+                </div>
+
+                <!-- 时间范围选择 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm font-medium text-gray-700">统计时间范围：</span>
+                            <select id="time-range" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="7">最近7天</option>
+                                <option value="30" selected>最近30天</option>
+                                <option value="90">最近90天</option>
+                                <option value="365">最近一年</option>
+                            </select>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="export-report-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="download" class="h-4 w-4 mr-2"></i>
+                                导出报告
+                            </button>
+                            <button id="refresh-data-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i>
+                                刷新数据
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关键指标卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-100 rounded-lg">
+                                <i data-lucide="users" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">总用户数</p>
+                                <p class="text-2xl font-bold text-gray-900">1,234</p>
+                                <p class="text-xs text-green-600">+12% 较上月</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 rounded-lg">
+                                <i data-lucide="activity" class="h-6 w-6 text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">活跃用户</p>
+                                <p class="text-2xl font-bold text-gray-900">856</p>
+                                <p class="text-xs text-green-600">+8% 较上月</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <i data-lucide="book-open" class="h-6 w-6 text-purple-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">课程数量</p>
+                                <p class="text-2xl font-bold text-gray-900">89</p>
+                                <p class="text-xs text-green-600">+5% 较上月</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-orange-100 rounded-lg">
+                                <i data-lucide="download" class="h-6 w-6 text-orange-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">资料下载</p>
+                                <p class="text-2xl font-bold text-gray-900">2,456</p>
+                                <p class="text-xs text-green-600">+15% 较上月</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <!-- 用户增长趋势 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">用户增长趋势</h3>
+                        <canvas id="userGrowthChart" width="400" height="200"></canvas>
+                    </div>
+
+                    <!-- 课程分布 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">课程类型分布</h3>
+                        <canvas id="courseDistributionChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- 详细统计表格 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 热门课程排行 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">热门课程排行</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <span class="w-6 h-6 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center mr-3">1</span>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">高等数学</p>
+                                            <p class="text-xs text-gray-500">李老师</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">45人</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <span class="w-6 h-6 bg-gray-400 text-white text-xs rounded-full flex items-center justify-center mr-3">2</span>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">计算机程序设计</p>
+                                            <p class="text-xs text-gray-500">王老师</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">38人</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <span class="w-6 h-6 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center mr-3">3</span>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">英语口语</p>
+                                            <p class="text-xs text-gray-500">张老师</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">32人</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 用户活跃度 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">用户活跃度分析</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">每日活跃</span>
+                                        <span class="text-gray-900">68%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 68%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">每周活跃</span>
+                                        <span class="text-gray-900">85%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="text-gray-600">每月活跃</span>
+                                        <span class="text-gray-900">92%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统性能监控 -->
+                <div class="mt-8 bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900">系统性能监控</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600 mb-2">99.8%</div>
+                                <div class="text-sm text-gray-600">系统可用性</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-600 mb-2">156ms</div>
+                                <div class="text-sm text-gray-600">平均响应时间</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600 mb-2">2.3GB</div>
+                                <div class="text-sm text-gray-600">存储空间使用</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 用户增长趋势图表
+        const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+        const userGrowthChart = new Chart(userGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '用户数量',
+                    data: [800, 950, 1100, 1150, 1200, 1234],
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // 课程分布饼图
+        const courseDistributionCtx = document.getElementById('courseDistributionChart').getContext('2d');
+        const courseDistributionChart = new Chart(courseDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['数学类', '计算机类', '语言类', '其他'],
+                datasets: [{
+                    data: [35, 28, 22, 15],
+                    backgroundColor: [
+                        '#8b5cf6',
+                        '#06b6d4',
+                        '#10b981',
+                        '#f59e0b'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // 时间范围选择事件
+        document.getElementById('time-range').addEventListener('change', function() {
+            const days = parseInt(this.value);
+            alert(`切换到最近${days}天的数据统计`);
+            // 这里可以重新加载对应时间范围的数据
+        });
+
+        // 导出报告
+        document.getElementById('export-report-btn').addEventListener('click', function() {
+            alert('报告导出功能开发中...\n将生成PDF格式的详细统计报告');
+        });
+
+        // 刷新数据
+        document.getElementById('refresh-data-btn').addEventListener('click', function() {
+            // 模拟数据刷新
+            this.innerHTML = '<i data-lucide="loader" class="h-4 w-4 mr-2 animate-spin"></i>刷新中...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i>刷新数据';
+                this.disabled = false;
+                alert('数据已刷新！');
+                lucide.createIcons();
+            }, 2000);
+        });
+
+        // 添加一些交互效果
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html> 

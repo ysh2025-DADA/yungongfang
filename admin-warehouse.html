@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 仓库管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(139, 92, 246, 0.1); }
+        .sidebar-item.active { background-color: rgba(139, 92, 246, 0.2); border-right: 3px solid #8b5cf6; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 0; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .status-pending { background-color: #fef3c7; color: #d97706; }
+        .status-approved { background-color: #d1fae5; color: #059669; }
+        .status-rejected { background-color: #fee2e2; color: #dc2626; }
+        .status-borrowed { background-color: #dbeafe; color: #2563eb; }
+        .status-returned { background-color: #f3f4f6; color: #6b7280; }
+        .item-card { transition: all 0.2s ease; }
+        .item-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">管理员：18072830839</span>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">退出登录</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>控制台概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-users.html'">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>用户管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>课程管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>资料管理
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-purple-700 rounded-lg cursor-pointer">
+                        <i data-lucide="database" class="h-5 w-5 mr-3"></i>仓库管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-statistics.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>数据统计
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-settings.html'">
+                        <i data-lucide="settings" class="h-5 w-5 mr-3"></i>系统设置
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">仓库管理</h1>
+                    <p class="text-gray-600">统一管理数字资源仓库和实体物品仓库</p>
+                </div>
+
+                <!-- 仓库类型选择 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
+                    <div class="flex flex-wrap gap-4">
+                        <button id="repo-digital" class="repo-type-btn active px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium transition-colors">
+                            <i data-lucide="database" class="h-4 w-4 mr-2"></i>数字资源仓库
+                        </button>
+                        <button id="repo-physical" class="repo-type-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                            <i data-lucide="package" class="h-4 w-4 mr-2"></i>实体物品仓库
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 数字资源仓库内容 -->
+                <div id="digital-repo" class="space-y-6">
+                    <!-- 统计卡片 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i data-lucide="database" class="h-6 w-6 text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">数字仓库数</p>
+                                    <p class="text-2xl font-bold text-gray-900">12</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-green-100 rounded-lg">
+                                    <i data-lucide="folder" class="h-6 w-6 text-green-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">文件夹数</p>
+                                    <p class="text-2xl font-bold text-gray-900">156</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-purple-100 rounded-lg">
+                                    <i data-lucide="file" class="h-6 w-6 text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">文件总数</p>
+                                    <p class="text-2xl font-bold text-gray-900">2,847</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-orange-100 rounded-lg">
+                                    <i data-lucide="hard-drive" class="h-6 w-6 text-orange-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">存储空间</p>
+                                    <p class="text-2xl font-bold text-gray-900">45.2GB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 数字仓库操作 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                            <div class="flex space-x-4">
+                                <button id="create-digital-repo-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                    <i data-lucide="plus" class="h-4 w-4 mr-2"></i>新建数字仓库
+                                </button>
+                                <button id="upload-files-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                    <i data-lucide="upload" class="h-4 w-4 mr-2"></i>上传文件
+                                </button>
+                            </div>
+                            <div class="flex space-x-4">
+                                <select id="digital-category-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    <option value="">全部类型</option>
+                                    <option value="learning">学习资料</option>
+                                    <option value="course">课程资源</option>
+                                    <option value="template">模板库</option>
+                                    <option value="media">媒体资源</option>
+                                </select>
+                                <div class="relative">
+                                    <input type="text" id="search-digital" placeholder="搜索数字资源..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-64">
+                                    <i data-lucide="search" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 数字仓库列表 -->
+                    <div id="digital-repositories" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <!-- 数字仓库卡片将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 实体物品仓库内容 -->
+                <div id="physical-repo" class="space-y-6 hidden">
+                    <!-- 统计卡片 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i data-lucide="package" class="h-6 w-6 text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">物品总数</p>
+                                    <p class="text-2xl font-bold text-gray-900">1,247</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-green-100 rounded-lg">
+                                    <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">在库物品</p>
+                                    <p class="text-2xl font-bold text-gray-900">1,156</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-orange-100 rounded-lg">
+                                    <i data-lucide="clock" class="h-6 w-6 text-orange-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">借用中</p>
+                                    <p class="text-2xl font-bold text-gray-900">91</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-purple-100 rounded-lg">
+                                    <i data-lucide="file-text" class="h-6 w-6 text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">待审批</p>
+                                    <p class="text-2xl font-bold text-gray-900">23</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 功能选项卡 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
+                        <div class="flex flex-wrap gap-4">
+                            <button id="tab-inventory" class="tab-btn active px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium transition-colors">物品清点</button>
+                            <button id="tab-borrow" class="tab-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">借用管理</button>
+                            <button id="tab-apply" class="tab-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">申请审批</button>
+                        </div>
+                    </div>
+
+                    <!-- 物品清点页面 -->
+                    <div id="inventory-page" class="space-y-6">
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                                <div class="flex space-x-4">
+                                    <button id="add-item-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                        <i data-lucide="plus" class="h-4 w-4 mr-2"></i>添加物品
+                                    </button>
+                                    <button id="batch-import-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                        <i data-lucide="upload" class="h-4 w-4 mr-2"></i>批量导入
+                                    </button>
+                                </div>
+                                <div class="flex space-x-4">
+                                    <select id="physical-category-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                        <option value="">全部分类</option>
+                                        <option value="equipment">教学设备</option>
+                                        <option value="books">图书资料</option>
+                                        <option value="tools">实验工具</option>
+                                        <option value="electronics">电子产品</option>
+                                    </select>
+                                    <div class="relative">
+                                        <input type="text" id="search-physical" placeholder="搜索物品..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-64">
+                                        <i data-lucide="search" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 物品列表 -->
+                        <div class="bg-white rounded-lg shadow-sm border">
+                            <div class="p-6">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">物品信息</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分类</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">位置</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="items-table-body" class="bg-white divide-y divide-gray-200">
+                                            <!-- 物品数据将通过JavaScript动态生成 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 借用管理页面 -->
+                    <div id="borrow-page" class="space-y-6 hidden">
+                        <div class="bg-white rounded-lg shadow-sm border">
+                            <div class="p-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">借用记录</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">借用人</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">物品</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">借用时间</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">应还时间</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="borrow-table-body" class="bg-white divide-y divide-gray-200">
+                                            <!-- 借用记录将通过JavaScript动态生成 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 申请审批页面 -->
+                    <div id="apply-page" class="space-y-6 hidden">
+                        <div class="bg-white rounded-lg shadow-sm border">
+                            <div class="p-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">待审批申请</h3>
+                                <div id="pending-applications" class="space-y-4">
+                                    <!-- 申请卡片将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 模拟数字仓库数据
+        let digitalRepositories = [
+            {
+                id: 1,
+                name: '数学学习资料',
+                type: 'learning',
+                description: '高等数学、线性代数等数学相关学习资料',
+                access: 'public',
+                size: '2.3GB',
+                fileCount: 156,
+                createTime: '2024-01-01'
+            },
+            {
+                id: 2,
+                name: '计算机课程资源',
+                type: 'course',
+                description: '编程语言、数据结构等计算机课程资源',
+                access: 'students',
+                size: '4.7GB',
+                fileCount: 234,
+                createTime: '2024-01-05'
+            },
+            {
+                id: 3,
+                name: 'PPT模板库',
+                type: 'template',
+                description: '各类教学PPT模板和素材',
+                access: 'teachers',
+                size: '1.8GB',
+                fileCount: 89,
+                createTime: '2024-01-10'
+            },
+            {
+                id: 4,
+                name: '教学视频库',
+                type: 'media',
+                description: '录制的教学视频和多媒体资源',
+                access: 'public',
+                size: '15.2GB',
+                fileCount: 567,
+                createTime: '2024-01-15'
+            }
+        ];
+
+        // 模拟物品数据
+        let items = [
+            {
+                id: 1,
+                name: '投影仪',
+                category: 'equipment',
+                quantity: 15,
+                unit: '台',
+                location: 'A区-01-01',
+                manager: '张老师',
+                description: '教学用投影仪，支持高清显示',
+                status: 'available',
+                borrowed: 3
+            },
+            {
+                id: 2,
+                name: '笔记本电脑',
+                category: 'electronics',
+                quantity: 25,
+                unit: '台',
+                location: 'B区-02-03',
+                manager: '李老师',
+                description: '教学用笔记本电脑，配置齐全',
+                status: 'available',
+                borrowed: 8
+            }
+        ];
+
+        // 模拟借用记录
+        let borrowRecords = [
+            {
+                id: 1,
+                borrower: '张三',
+                itemName: '投影仪',
+                borrowTime: '2024-01-15',
+                returnTime: '2024-01-20',
+                status: 'borrowed'
+            },
+            {
+                id: 2,
+                borrower: '李四',
+                itemName: '笔记本电脑',
+                borrowTime: '2024-01-10',
+                returnTime: '2024-01-18',
+                status: 'returned'
+            }
+        ];
+
+        // 模拟申请记录
+        let applications = [
+            {
+                id: 1,
+                applicant: '陈老师',
+                itemName: '投影仪',
+                quantity: 2,
+                purpose: '下周公开课使用',
+                applyTime: '2024-01-16',
+                status: 'pending'
+            }
+        ];
+
+        // 渲染数字仓库
+        function renderDigitalRepositories() {
+            const container = document.getElementById('digital-repositories');
+            container.innerHTML = digitalRepositories.map(repo => `
+                <div class="item-card bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-purple-300">
+                    <div class="flex items-center mb-3">
+                        <div class="p-2 bg-purple-100 rounded-lg mr-3">
+                            <i data-lucide="database" class="h-6 w-6 text-purple-600"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-sm font-medium text-gray-900 truncate">${repo.name}</h3>
+                            <p class="text-xs text-gray-500">${getDigitalTypeName(repo.type)}</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600 mb-3 line-clamp-2">${repo.description}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>${repo.fileCount} 个文件</span>
+                        <span>${repo.size}</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between">
+                        <span class="inline-flex px-2 py-1 text-xs rounded-full ${
+                            repo.access === 'public' ? 'bg-green-100 text-green-800' :
+                            repo.access === 'students' ? 'bg-blue-100 text-blue-800' :
+                            repo.access === 'teachers' ? 'bg-purple-100 text-purple-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">
+                            ${getAccessName(repo.access)}
+                        </span>
+                        <div class="flex space-x-1">
+                            <button onclick="editDigitalRepo(${repo.id}); event.stopPropagation();" class="p-1 text-gray-400 hover:text-purple-600">
+                                <i data-lucide="edit" class="h-3 w-3"></i>
+                            </button>
+                            <button onclick="deleteDigitalRepo(${repo.id}); event.stopPropagation();" class="p-1 text-gray-400 hover:text-red-600">
+                                <i data-lucide="trash-2" class="h-3 w-3"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // 渲染物品列表
+        function renderItems() {
+            const tbody = document.getElementById('items-table-body');
+            tbody.innerHTML = items.map(item => `
+                <tr class="item-card hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${item.name}</div>
+                            <div class="text-sm text-gray-500">${item.description}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs rounded-full ${
+                            item.category === 'equipment' ? 'bg-blue-100 text-blue-800' :
+                            item.category === 'books' ? 'bg-green-100 text-green-800' :
+                            item.category === 'tools' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-purple-100 text-purple-800'
+                        }">
+                            ${getPhysicalCategoryName(item.category)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${item.quantity} ${item.unit}
+                        <div class="text-xs text-gray-500">已借: ${item.borrowed}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs rounded-full ${
+                            item.status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${item.status === 'available' ? '在库' : '缺货'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.location}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button onclick="editItem(${item.id})" class="text-purple-600 hover:text-purple-900">编辑</button>
+                            <button onclick="deleteItem(${item.id})" class="text-red-600 hover:text-red-900">删除</button>
+                            <button onclick="borrowItem(${item.id})" class="text-blue-600 hover:text-blue-900">借用</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染借用记录
+        function renderBorrowRecords() {
+            const tbody = document.getElementById('borrow-table-body');
+            tbody.innerHTML = borrowRecords.map(record => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.borrower}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.itemName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.borrowTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.returnTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs rounded-full ${
+                            record.status === 'borrowed' ? 'status-borrowed' : 'status-returned'
+                        }">
+                            ${record.status === 'borrowed' ? '借用中' : '已归还'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button onclick="returnItem(${record.id})" class="text-green-600 hover:text-green-900">归还</button>
+                            <button onclick="extendBorrow(${record.id})" class="text-blue-600 hover:text-blue-900">延期</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染申请记录
+        function renderApplications() {
+            const container = document.getElementById('pending-applications');
+            container.innerHTML = applications.filter(app => app.status === 'pending').map(app => `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">${app.applicant}</h4>
+                            <p class="text-sm text-gray-600">申请物品: ${app.itemName} × ${app.quantity}</p>
+                            <p class="text-sm text-gray-600">用途: ${app.purpose}</p>
+                            <p class="text-xs text-gray-500">申请时间: ${app.applyTime}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="approveApplication(${app.id})" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">批准</button>
+                            <button onclick="rejectApplication(${app.id})" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">拒绝</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 获取数字仓库类型名称
+        function getDigitalTypeName(type) {
+            const typeNames = {
+                'learning': '学习资料仓库',
+                'course': '课程资源仓库',
+                'template': '模板库',
+                'media': '媒体资源库'
+            };
+            return typeNames[type] || type;
+        }
+
+        // 获取实体物品分类名称
+        function getPhysicalCategoryName(category) {
+            const categoryNames = {
+                'equipment': '教学设备',
+                'books': '图书资料',
+                'tools': '实验工具',
+                'electronics': '电子产品'
+            };
+            return categoryNames[category] || category;
+        }
+
+        // 获取权限名称
+        function getAccessName(access) {
+            const accessNames = {
+                'public': '公开',
+                'students': '仅学生',
+                'teachers': '仅教师',
+                'private': '私有'
+            };
+            return accessNames[access] || access;
+        }
+
+        // 切换仓库类型
+        function switchRepoType(type) {
+            if (type === 'digital') {
+                document.getElementById('digital-repo').classList.remove('hidden');
+                document.getElementById('physical-repo').classList.add('hidden');
+                document.getElementById('repo-digital').classList.add('active', 'bg-purple-600', 'text-white');
+                document.getElementById('repo-digital').classList.remove('bg-gray-100', 'text-gray-700');
+                document.getElementById('repo-physical').classList.remove('active', 'bg-purple-600', 'text-white');
+                document.getElementById('repo-physical').classList.add('bg-gray-100', 'text-gray-700');
+            } else {
+                document.getElementById('digital-repo').classList.add('hidden');
+                document.getElementById('physical-repo').classList.remove('hidden');
+                document.getElementById('repo-physical').classList.add('active', 'bg-purple-600', 'text-white');
+                document.getElementById('repo-physical').classList.remove('bg-gray-100', 'text-gray-700');
+                document.getElementById('repo-digital').classList.remove('active', 'bg-purple-600', 'text-white');
+                document.getElementById('repo-digital').classList.add('bg-gray-100', 'text-gray-700');
+            }
+        }
+
+        // 切换实体仓库选项卡
+        function showPhysicalTab(tabName) {
+            document.getElementById('inventory-page').classList.add('hidden');
+            document.getElementById('borrow-page').classList.add('hidden');
+            document.getElementById('apply-page').classList.add('hidden');
+            
+            document.getElementById(tabName + '-page').classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-purple-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            
+            document.getElementById('tab-' + tabName).classList.add('active', 'bg-purple-600', 'text-white');
+            document.getElementById('tab-' + tabName).classList.remove('bg-gray-100', 'text-gray-700');
+        }
+
+        // 数字仓库操作函数
+        function editDigitalRepo(repoId) {
+            alert(`编辑数字仓库功能开发中...\n仓库ID: ${repoId}`);
+        }
+
+        function deleteDigitalRepo(repoId) {
+            if (confirm('确定要删除这个数字仓库吗？')) {
+                digitalRepositories = digitalRepositories.filter(repo => repo.id !== repoId);
+                renderDigitalRepositories();
+                alert('数字仓库删除成功！');
+            }
+        }
+
+        // 实体物品操作函数
+        function editItem(itemId) {
+            alert(`编辑物品功能开发中...\n物品ID: ${itemId}`);
+        }
+
+        function deleteItem(itemId) {
+            if (confirm('确定要删除这个物品吗？')) {
+                items = items.filter(item => item.id !== itemId);
+                renderItems();
+                alert('物品删除成功！');
+            }
+        }
+
+        function borrowItem(itemId) {
+            alert(`借用物品功能开发中...\n物品ID: ${itemId}`);
+        }
+
+        function returnItem(recordId) {
+            if (confirm('确认归还此物品？')) {
+                const record = borrowRecords.find(r => r.id === recordId);
+                if (record) {
+                    record.status = 'returned';
+                    renderBorrowRecords();
+                    alert('物品归还成功！');
+                }
+            }
+        }
+
+        function extendBorrow(recordId) {
+            alert(`延期借用功能开发中...\n记录ID: ${recordId}`);
+        }
+
+        function approveApplication(appId) {
+            if (confirm('确认批准此申请？')) {
+                const app = applications.find(a => a.id === appId);
+                if (app) {
+                    app.status = 'approved';
+                    renderApplications();
+                    alert('申请已批准！');
+                }
+            }
+        }
+
+        function rejectApplication(appId) {
+            if (confirm('确认拒绝此申请？')) {
+                const app = applications.find(a => a.id === appId);
+                if (app) {
+                    app.status = 'rejected';
+                    renderApplications();
+                    alert('申请已拒绝！');
+                }
+            }
+        }
+
+        // 事件监听器
+        document.getElementById('repo-digital').addEventListener('click', () => switchRepoType('digital'));
+        document.getElementById('repo-physical').addEventListener('click', () => switchRepoType('physical'));
+
+        document.getElementById('tab-inventory').addEventListener('click', () => showPhysicalTab('inventory'));
+        document.getElementById('tab-borrow').addEventListener('click', () => showPhysicalTab('borrow'));
+        document.getElementById('tab-apply').addEventListener('click', () => showPhysicalTab('apply'));
+
+        // 其他按钮事件
+        document.getElementById('create-digital-repo-btn').addEventListener('click', () => {
+            alert('新建数字仓库功能开发中...');
+        });
+
+        document.getElementById('upload-files-btn').addEventListener('click', () => {
+            alert('上传文件功能开发中...');
+        });
+
+        document.getElementById('add-item-btn').addEventListener('click', () => {
+            alert('添加物品功能开发中...');
+        });
+
+        document.getElementById('batch-import-btn').addEventListener('click', () => {
+            alert('批量导入功能开发中...');
+        });
+
+        // 初始化页面
+        renderDigitalRepositories();
+        renderItems();
+        renderBorrowRecords();
+        renderApplications();
+    </script>
+</body>
+</html> 

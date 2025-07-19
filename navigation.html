@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 导航中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .nav-card { transition: all 0.3s ease; }
+        .nav-card:hover { transform: translateY(-4px); box-shadow: 0 12px 25px rgba(0,0,0,0.15); }
+        .role-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .role-section.teacher { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .role-section.admin { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-blue-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 导航中心</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="window.location.href='index.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        返回登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 页面标题 -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">教育平台功能导航</h1>
+            <p class="text-xl text-gray-600">选择您要访问的功能模块</p>
+        </div>
+
+        <!-- 学生模块 -->
+        <div class="mb-12">
+            <div class="role-section rounded-lg p-6 mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i data-lucide="user" class="h-6 w-6 text-white"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold text-white">学生模块</h2>
+                        <p class="text-white text-opacity-90">学习管理、作业提交、成绩查询</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='student-dashboard.html'">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="layout-dashboard" class="h-6 w-6 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">学习概览</h3>
+                    <p class="text-gray-600 text-sm">查看学习进度、课程统计、待办事项</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='student-assignment.html'">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="clipboard-list" class="h-6 w-6 text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">作业提交</h3>
+                    <p class="text-gray-600 text-sm">提交作业、查看截止时间、查看成绩反馈</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='student-grades.html'">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="bar-chart-3" class="h-6 w-6 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">成绩查询</h3>
+                    <p class="text-gray-600 text-sm">查看各科成绩、成绩分析、排名情况</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='student-schedule.html'">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="calendar" class="h-6 w-6 text-orange-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">课程表</h3>
+                    <p class="text-gray-600 text-sm">查看课程安排、时间表、教室信息</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='student-qa.html'">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="help-circle" class="h-6 w-6 text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">问答中心</h3>
+                    <p class="text-gray-600 text-sm">提问、查看回答、问题分类</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 教师模块 -->
+        <div class="mb-12">
+            <div class="role-section teacher rounded-lg p-6 mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i data-lucide="users" class="h-6 w-6 text-white"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold text-white">教师模块</h2>
+                        <p class="text-white text-opacity-90">教学管理、作业批改、成绩管理</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='teacher-dashboard.html'">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="layout-dashboard" class="h-6 w-6 text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">教学概览</h3>
+                    <p class="text-gray-600 text-sm">查看教学统计、学生数量、待处理事项</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='teacher-grading.html'">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="clipboard-check" class="h-6 w-6 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">作业批改</h3>
+                    <p class="text-gray-600 text-sm">批改学生作业、录入成绩、批量处理</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='teacher-grades.html'">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="bar-chart-3" class="h-6 w-6 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">成绩管理</h3>
+                    <p class="text-gray-600 text-sm">成绩录入、统计分析、导出功能</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 管理员模块 -->
+        <div class="mb-12">
+            <div class="role-section admin rounded-lg p-6 mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i data-lucide="shield" class="h-6 w-6 text-white"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold text-white">管理员模块</h2>
+                        <p class="text-white text-opacity-90">系统管理、用户管理、数据统计</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-dashboard.html'">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="layout-dashboard" class="h-6 w-6 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">控制台</h3>
+                    <p class="text-gray-600 text-sm">系统概览、数据统计、系统状态</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-users.html'">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="users" class="h-6 w-6 text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">用户管理</h3>
+                    <p class="text-gray-600 text-sm">学生、教师账号管理、角色分配</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-courses.html'">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="book-open" class="h-6 w-6 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">课程管理</h3>
+                    <p class="text-gray-600 text-sm">课程创建、编辑、删除、教师分配</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-materials.html'">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="file-text" class="h-6 w-6 text-orange-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">资料管理</h3>
+                    <p class="text-gray-600 text-sm">学习资料上传、分类、权限控制</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-settings.html'">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="settings" class="h-6 w-6 text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">系统设置</h3>
+                    <p class="text-gray-600 text-sm">平台配置、权限管理、安全设置</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工具模块 -->
+        <div class="mb-12">
+            <div class="bg-gray-800 rounded-lg p-6 mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i data-lucide="wrench" class="h-6 w-6 text-white"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-2xl font-bold text-white">开发工具</h2>
+                        <p class="text-white text-opacity-90">调试、测试、数据管理工具</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='debug-localStorage.html'">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="database" class="h-6 w-6 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">数据调试</h3>
+                    <p class="text-gray-600 text-sm">查看localStorage数据、测试数据操作</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='test-data-persistence.html'">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="test-tube" class="h-6 w-6 text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">数据测试</h3>
+                    <p class="text-gray-600 text-sm">测试数据持久化、验证功能</p>
+                </div>
+
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='index.html'">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="log-in" class="h-6 w-6 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">登录页面</h3>
+                    <p class="text-gray-600 text-sm">返回登录页面、角色切换</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速访问 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">快速访问</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="window.location.href='index.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    登录页面
+                </button>
+                <button onclick="window.location.href='student-dashboard.html'" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    学生中心
+                </button>
+                <button onclick="window.location.href='teacher-dashboard.html'" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    教师中心
+                </button>
+                <button onclick="window.location.href='admin-dashboard.html'" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    管理员控制台
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+    </script>
+</body>
+</html> 

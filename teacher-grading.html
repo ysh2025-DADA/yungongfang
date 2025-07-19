@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 作业批改</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(34, 197, 94, 0.1); }
+        .sidebar-item.active { background-color: rgba(34, 197, 94, 0.2); border-right: 3px solid #22c55e; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 2% auto; padding: 0; border-radius: 8px; width: 95%; max-width: 1200px; height: 90%; animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .grading-area { height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+        .student-item { transition: all 0.2s ease; }
+        .student-item:hover { background-color: #f9fafb; }
+        .student-item.selected { background-color: #ecfdf5; border-color: #22c55e; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-green-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 教师中心</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="bell" class="h-5 w-5 text-gray-400"></i>
+                        <span class="text-sm text-gray-700">5</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-green-600">李</span>
+                        </div>
+                        <span class="text-sm text-gray-700">李老师</span>
+                    </div>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="window.location.href='teacher-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        教学概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="window.location.href='teacher-dashboard.html#courses'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        我的课程
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="window.location.href='teacher-dashboard.html#students'">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>
+                        学生管理
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-green-700 rounded-lg cursor-pointer">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 mr-3"></i>
+                        作业管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="window.location.href='teacher-dashboard.html#grades'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        成绩管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="window.location.href='teacher-dashboard.html#materials'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="window.location.href='teacher-dashboard.html#qa'">
+                        <i data-lucide="help-circle" class="h-5 w-5 mr-3"></i>
+                        答疑解惑
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">作业批改</h1>
+                    <p class="text-gray-600">批改学生作业并录入成绩</p>
+                </div>
+
+                <!-- 作业信息 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-6">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 mb-2">高等数学作业三</h2>
+                                <p class="text-gray-600 mb-4">微积分基础练习，包含极限、导数、积分等知识点</p>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">课程：</span>
+                                        <span class="font-medium">高等数学</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">截止时间：</span>
+                                        <span class="font-medium">2024-01-20 23:59</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">总人数：</span>
+                                        <span class="font-medium">45人</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">已提交：</span>
+                                        <span class="font-medium text-green-600">42人</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="exportGrades()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    <i data-lucide="download" class="h-4 w-4 inline mr-2"></i>
+                                    导出成绩
+                                </button>
+                                <button onclick="batchGrade()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    <i data-lucide="check-square" class="h-4 w-4 inline mr-2"></i>
+                                    批量批改
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 筛选和搜索 -->
+                    <div class="p-6 border-b">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                            <div class="flex space-x-4">
+                                <select id="status-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">全部状态</option>
+                                    <option value="submitted">已提交</option>
+                                    <option value="graded">已批改</option>
+                                    <option value="late">逾期提交</option>
+                                </select>
+                                <select id="grade-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <option value="">全部成绩</option>
+                                    <option value="excellent">优秀 (90-100)</option>
+                                    <option value="good">良好 (80-89)</option>
+                                    <option value="pass">及格 (60-79)</option>
+                                    <option value="fail">不及格 (0-59)</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="search-students" placeholder="搜索学生..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-64">
+                                <i data-lucide="search" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学生列表和批改区域 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 学生列表 -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow-sm border">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold text-gray-900">学生列表</h3>
+                                <p class="text-sm text-gray-600">点击学生开始批改</p>
+                            </div>
+                            <div class="p-4">
+                                <div id="students-list" class="space-y-2 max-h-96 overflow-y-auto">
+                                    <!-- 学生列表将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 批改区域 -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg shadow-sm border">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold text-gray-900">批改区域</h3>
+                                <p class="text-sm text-gray-600">选择学生开始批改作业</p>
+                            </div>
+                            <div class="p-4">
+                                <div id="grading-content" class="text-center text-gray-500 py-12">
+                                    <i data-lucide="file-text" class="h-16 w-16 text-gray-300 mx-auto mb-4"></i>
+                                    <p class="text-lg font-medium mb-2">请选择学生开始批改</p>
+                                    <p class="text-sm">点击左侧学生列表中的学生姓名</p>
+                                </div>
+                                
+                                <div id="grading-form" class="hidden">
+                                    <div class="mb-6">
+                                        <h4 class="text-lg font-medium text-gray-900 mb-3">学生信息</h4>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                            <div>
+                                                <span class="text-gray-500">姓名：</span>
+                                                <span class="font-medium" id="student-name">-</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">学号：</span>
+                                                <span class="font-medium" id="student-id">-</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">提交时间：</span>
+                                                <span class="font-medium" id="submit-time">-</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">状态：</span>
+                                                <span class="font-medium" id="submit-status">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <h4 class="text-lg font-medium text-gray-900 mb-3">提交文件</h4>
+                                        <div id="submitted-files" class="space-y-2">
+                                            <!-- 提交的文件列表 -->
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <h4 class="text-lg font-medium text-gray-900 mb-3">学生备注</h4>
+                                        <div id="student-notes" class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                                            <!-- 学生备注内容 -->
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <h4 class="text-lg font-medium text-gray-900 mb-3">评分标准</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <span class="text-sm text-gray-700">解题思路 (20分)</span>
+                                                <input type="number" id="score-思路" min="0" max="20" class="w-20 border border-gray-300 rounded px-2 py-1 text-sm" placeholder="0-20">
+                                            </div>
+                                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <span class="text-sm text-gray-700">计算过程 (20分)</span>
+                                                <input type="number" id="score-计算" min="0" max="20" class="w-20 border border-gray-300 rounded px-2 py-1 text-sm" placeholder="0-20">
+                                            </div>
+                                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <span class="text-sm text-gray-700">答案正确性 (20分)</span>
+                                                <input type="number" id="score-答案" min="0" max="20" class="w-20 border border-gray-300 rounded px-2 py-1 text-sm" placeholder="0-20">
+                                            </div>
+                                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <span class="text-sm text-gray-700">书写规范 (10分)</span>
+                                                <input type="number" id="score-书写" min="0" max="10" class="w-20 border border-gray-300 rounded px-2 py-1 text-sm" placeholder="0-10">
+                                            </div>
+                                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                                <span class="text-sm font-medium text-blue-700">总分 (70分)</span>
+                                                <span class="text-lg font-bold text-blue-700" id="total-score">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-6">
+                                        <h4 class="text-lg font-medium text-gray-900 mb-3">教师评语</h4>
+                                        <textarea id="teacher-comment" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入评语..."></textarea>
+                                    </div>
+
+                                    <div class="flex justify-end space-x-4">
+                                        <button type="button" id="save-draft" class="px-6 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                            保存草稿
+                                        </button>
+                                        <button type="button" id="submit-grade" class="px-6 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors">
+                                            提交成绩
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量批改模态框 -->
+    <div id="batch-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-blue-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">批量批改</h3>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">选择批改模式</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="batch-mode" value="auto" class="mr-2">
+                            <span class="text-sm text-gray-700">自动批改（基于关键词匹配）</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="batch-mode" value="template" class="mr-2">
+                            <span class="text-sm text-gray-700">模板批改（使用预设评语模板）</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="auto-grading-options" class="mb-4 hidden">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">自动批改设置</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="check-keywords" class="mr-2">
+                            <span class="text-sm text-gray-700">检查关键词匹配</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="check-format" class="mr-2">
+                            <span class="text-sm text-gray-700">检查格式规范</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="check-completeness" class="mr-2">
+                            <span class="text-sm text-gray-700">检查完成度</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="template-options" class="mb-4 hidden">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">评语模板</h4>
+                    <select id="comment-template" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="">选择模板</option>
+                        <option value="excellent">优秀模板</option>
+                        <option value="good">良好模板</option>
+                        <option value="pass">及格模板</option>
+                        <option value="fail">不及格模板</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancel-batch" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="button" id="start-batch" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                        开始批量批改
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 模拟学生作业数据
+        let studentsData = [
+            {
+                id: 1,
+                name: '张三',
+                studentId: '2021001',
+                submitTime: '2024-01-18 15:30',
+                status: 'submitted',
+                files: [
+                    { name: '作业解答.pdf', size: '2.3MB', type: 'pdf' }
+                ],
+                notes: '老师，我在第三题遇到了一些困难，希望能得到指导。',
+                grade: null,
+                comment: null
+            },
+            {
+                id: 2,
+                name: '李四',
+                studentId: '2021002',
+                submitTime: '2024-01-19 10:15',
+                status: 'graded',
+                files: [
+                    { name: '数学作业.pdf', size: '1.8MB', type: 'pdf' }
+                ],
+                notes: '',
+                grade: {
+                    total: 85,
+                    details: { '思路': 18, '计算': 16, '答案': 17, '书写': 8 },
+                    comment: '作业完成情况良好，解题思路清晰，建议在积分计算方面多加练习。'
+                },
+                comment: '作业完成情况良好，解题思路清晰，建议在积分计算方面多加练习。'
+            },
+            {
+                id: 3,
+                name: '王五',
+                studentId: '2021003',
+                submitTime: '2024-01-20 22:45',
+                status: 'late',
+                files: [
+                    { name: '高等数学作业.pdf', size: '3.1MB', type: 'pdf' }
+                ],
+                notes: '抱歉老师，由于个人原因提交晚了。',
+                grade: null,
+                comment: null
+            }
+        ];
+
+        let currentStudent = null;
+        let filteredStudents = [...studentsData];
+
+        // 渲染学生列表
+        function renderStudentsList() {
+            const listContainer = document.getElementById('students-list');
+            
+            listContainer.innerHTML = filteredStudents.map(student => `
+                <div class="student-item p-3 border border-gray-200 rounded-lg cursor-pointer" onclick="selectStudent(${student.id})">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-medium text-gray-900">${student.name}</div>
+                            <div class="text-sm text-gray-500">${student.studentId}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-500">${student.submitTime}</div>
+                            <div class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                student.status === 'graded' ? 'bg-green-100 text-green-800' :
+                                student.status === 'late' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'
+                            }">
+                                ${student.status === 'graded' ? '已批改' :
+                                  student.status === 'late' ? '逾期' : '已提交'}
+                            </div>
+                        </div>
+                    </div>
+                    ${student.grade ? `
+                        <div class="mt-2 text-sm">
+                            <span class="text-gray-500">成绩：</span>
+                            <span class="font-medium text-green-600">${student.grade.total}/70</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 选择学生
+        function selectStudent(studentId) {
+            currentStudent = studentsData.find(s => s.id === studentId);
+            
+            // 更新学生列表选中状态
+            document.querySelectorAll('.student-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // 显示批改表单
+            document.getElementById('grading-content').classList.add('hidden');
+            document.getElementById('grading-form').classList.remove('hidden');
+            
+            // 填充学生信息
+            document.getElementById('student-name').textContent = currentStudent.name;
+            document.getElementById('student-id').textContent = currentStudent.studentId;
+            document.getElementById('submit-time').textContent = currentStudent.submitTime;
+            document.getElementById('submit-status').textContent = 
+                currentStudent.status === 'graded' ? '已批改' :
+                currentStudent.status === 'late' ? '逾期提交' : '正常提交';
+            
+            // 显示提交文件
+            const filesContainer = document.getElementById('submitted-files');
+            filesContainer.innerHTML = currentStudent.files.map(file => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <i data-lucide="file" class="h-4 w-4 text-gray-400 mr-2"></i>
+                        <span class="text-sm text-gray-700">${file.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-gray-500">${file.size}</span>
+                        <button class="text-blue-600 hover:text-blue-700 text-sm">
+                            <i data-lucide="download" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // 显示学生备注
+            document.getElementById('student-notes').textContent = currentStudent.notes || '无备注';
+            
+            // 填充已有成绩
+            if (currentStudent.grade) {
+                document.getElementById('score-思路').value = currentStudent.grade.details['思路'];
+                document.getElementById('score-计算').value = currentStudent.grade.details['计算'];
+                document.getElementById('score-答案').value = currentStudent.grade.details['答案'];
+                document.getElementById('score-书写').value = currentStudent.grade.details['书写'];
+                document.getElementById('teacher-comment').value = currentStudent.comment || '';
+                updateTotalScore();
+            } else {
+                // 清空表单
+                document.getElementById('score-思路').value = '';
+                document.getElementById('score-计算').value = '';
+                document.getElementById('score-答案').value = '';
+                document.getElementById('score-书写').value = '';
+                document.getElementById('teacher-comment').value = '';
+                document.getElementById('total-score').textContent = '0';
+            }
+            
+            lucide.createIcons();
+        }
+
+        // 更新总分
+        function updateTotalScore() {
+            const scores = [
+                parseInt(document.getElementById('score-思路').value) || 0,
+                parseInt(document.getElementById('score-计算').value) || 0,
+                parseInt(document.getElementById('score-答案').value) || 0,
+                parseInt(document.getElementById('score-书写').value) || 0
+            ];
+            const total = scores.reduce((sum, score) => sum + score, 0);
+            document.getElementById('total-score').textContent = total;
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            if (!currentStudent) return;
+            
+            const grade = {
+                total: parseInt(document.getElementById('total-score').textContent),
+                details: {
+                    '思路': parseInt(document.getElementById('score-思路').value) || 0,
+                    '计算': parseInt(document.getElementById('score-计算').value) || 0,
+                    '答案': parseInt(document.getElementById('score-答案').value) || 0,
+                    '书写': parseInt(document.getElementById('score-书写').value) || 0
+                },
+                comment: document.getElementById('teacher-comment').value
+            };
+            
+            currentStudent.grade = grade;
+            currentStudent.comment = grade.comment;
+            currentStudent.status = 'graded';
+            
+            // 更新学生列表
+            renderStudentsList();
+            
+            alert('草稿已保存！');
+        }
+
+        // 提交成绩
+        function submitGrade() {
+            if (!currentStudent) return;
+            
+            const totalScore = parseInt(document.getElementById('total-score').textContent);
+            if (totalScore === 0) {
+                alert('请先输入成绩！');
+                return;
+            }
+            
+            const grade = {
+                total: totalScore,
+                details: {
+                    '思路': parseInt(document.getElementById('score-思路').value) || 0,
+                    '计算': parseInt(document.getElementById('score-计算').value) || 0,
+                    '答案': parseInt(document.getElementById('score-答案').value) || 0,
+                    '书写': parseInt(document.getElementById('score-书写').value) || 0
+                },
+                comment: document.getElementById('teacher-comment').value
+            };
+            
+            currentStudent.grade = grade;
+            currentStudent.comment = grade.comment;
+            currentStudent.status = 'graded';
+            
+            // 更新学生列表
+            renderStudentsList();
+            
+            alert('成绩提交成功！');
+        }
+
+        // 筛选学生
+        function filterStudents() {
+            const statusFilter = document.getElementById('status-filter').value;
+            const gradeFilter = document.getElementById('grade-filter').value;
+            const searchTerm = document.getElementById('search-students').value.toLowerCase();
+            
+            filteredStudents = studentsData.filter(student => {
+                const matchesStatus = !statusFilter || student.status === statusFilter;
+                const matchesSearch = student.name.toLowerCase().includes(searchTerm) || 
+                                    student.studentId.toLowerCase().includes(searchTerm);
+                
+                let matchesGrade = true;
+                if (gradeFilter && student.grade) {
+                    const score = student.grade.total;
+                    switch (gradeFilter) {
+                        case 'excellent': matchesGrade = score >= 90; break;
+                        case 'good': matchesGrade = score >= 80 && score < 90; break;
+                        case 'pass': matchesGrade = score >= 60 && score < 80; break;
+                        case 'fail': matchesGrade = score < 60; break;
+                    }
+                }
+                
+                return matchesStatus && matchesSearch && matchesGrade;
+            });
+            
+            renderStudentsList();
+        }
+
+        // 批量批改
+        function batchGrade() {
+            document.getElementById('batch-modal').style.display = 'block';
+        }
+
+        // 导出成绩
+        function exportGrades() {
+            const gradedStudents = studentsData.filter(s => s.grade);
+            const csvContent = [
+                ['学号', '姓名', '提交时间', '总分', '解题思路', '计算过程', '答案正确性', '书写规范', '评语'].join(','),
+                ...gradedStudents.map(s => [
+                    s.studentId,
+                    s.name,
+                    s.submitTime,
+                    s.grade.total,
+                    s.grade.details['思路'],
+                    s.grade.details['计算'],
+                    s.grade.details['答案'],
+                    s.grade.details['书写'],
+                    `"${s.comment || ''}"`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '作业成绩.csv';
+            link.click();
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 筛选和搜索
+            document.getElementById('status-filter').addEventListener('change', filterStudents);
+            document.getElementById('grade-filter').addEventListener('change', filterStudents);
+            document.getElementById('search-students').addEventListener('input', filterStudents);
+            
+            // 成绩输入
+            ['score-思路', 'score-计算', 'score-答案', 'score-书写'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateTotalScore);
+            });
+            
+            // 按钮事件
+            document.getElementById('save-draft').addEventListener('click', saveDraft);
+            document.getElementById('submit-grade').addEventListener('click', submitGrade);
+            
+            // 批量批改模态框
+            document.getElementById('cancel-batch').addEventListener('click', () => {
+                document.getElementById('batch-modal').style.display = 'none';
+            });
+            
+            // 批改模式选择
+            document.querySelectorAll('input[name="batch-mode"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    document.getElementById('auto-grading-options').classList.add('hidden');
+                    document.getElementById('template-options').classList.add('hidden');
+                    
+                    if (e.target.value === 'auto') {
+                        document.getElementById('auto-grading-options').classList.remove('hidden');
+                    } else if (e.target.value === 'template') {
+                        document.getElementById('template-options').classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // 点击模态框外部关闭
+            document.getElementById('batch-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('batch-modal')) {
+                    document.getElementById('batch-modal').style.display = 'none';
+                }
+            });
+            
+            // 初始化
+            renderStudentsList();
+        });
+    </script>
+</body>
+</html> 

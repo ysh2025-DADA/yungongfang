@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 资料管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        .sidebar-item.active {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-right: 3px solid #8b5cf6;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover {
+            border-color: #8b5cf6;
+            background-color: #f8fafc;
+        }
+        .file-upload-area.dragover {
+            border-color: #8b5cf6;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">管理员：18072830839</span>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        控制台概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-users.html'">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>
+                        用户管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        课程管理
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-purple-700 rounded-lg cursor-pointer">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-warehouse.html'">
+                        <i data-lucide="database" class="h-5 w-5 mr-3"></i>
+                        仓库管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-statistics.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        数据统计
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-settings.html'">
+                        <i data-lucide="settings" class="h-5 w-5 mr-3"></i>
+                        系统设置
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">资料管理</h1>
+                    <p class="text-gray-600">管理系统中的所有学习资料，包括文档、视频、图片等资源</p>
+                </div>
+
+                <!-- 操作栏 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                        <div class="flex space-x-4">
+                            <button id="upload-material-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="upload" class="h-4 w-4 mr-2"></i>
+                                上传资料
+                            </button>
+                            <button id="create-folder-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="folder-plus" class="h-4 w-4 mr-2"></i>
+                                新建文件夹
+                            </button>
+                        </div>
+                        <div class="flex space-x-4">
+                            <select id="type-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">所有类型</option>
+                                <option value="document">文档</option>
+                                <option value="video">视频</option>
+                                <option value="image">图片</option>
+                                <option value="audio">音频</option>
+                                <option value="other">其他</option>
+                            </select>
+                            <div class="relative">
+                                <input type="text" id="search-materials" placeholder="搜索资料..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-64">
+                                <i data-lucide="search" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 资料列表 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="materials-grid">
+                    <!-- 资料卡片将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-white rounded-lg shadow-sm border mt-6 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span id="start-index">1</span> 到 <span id="end-index">12</span> 条，共 <span id="total-count">0</span> 条记录
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                上一页
+                            </button>
+                            <span id="current-page" class="px-3 py-1 bg-purple-600 text-white rounded text-sm">1</span>
+                            <button id="next-page" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上传资料模态框 -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-purple-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">上传资料</h3>
+            </div>
+            <div class="p-6">
+                <div class="file-upload-area" id="file-upload-area">
+                    <i data-lucide="upload-cloud" class="h-12 w-12 text-gray-400 mx-auto mb-4"></i>
+                    <p class="text-lg font-medium text-gray-900 mb-2">拖拽文件到此处或点击上传</p>
+                    <p class="text-sm text-gray-500 mb-4">支持 PDF、DOC、PPT、MP4、JPG 等格式</p>
+                    <input type="file" id="file-input" multiple class="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.avi,.jpg,.jpeg,.png,.mp3,.wav">
+                    <button type="button" onclick="document.getElementById('file-input').click()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        选择文件
+                    </button>
+                </div>
+                
+                <div id="file-list" class="mt-4 space-y-2">
+                    <!-- 文件列表将在这里显示 -->
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">资料名称</label>
+                        <input type="text" id="material-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">资料类型</label>
+                        <select id="material-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="document">文档</option>
+                            <option value="video">视频</option>
+                            <option value="image">图片</option>
+                            <option value="audio">音频</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">所属课程</label>
+                        <select id="course-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">选择课程</option>
+                            <option value="MATH101">高等数学</option>
+                            <option value="CS101">计算机程序设计</option>
+                            <option value="ENG101">英语口语</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">访问权限</label>
+                        <select id="access-level" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="public">公开</option>
+                            <option value="students">仅学生</option>
+                            <option value="teachers">仅教师</option>
+                            <option value="private">私有</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">描述</label>
+                    <textarea id="material-description" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="cancel-upload-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="button" id="upload-btn" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">
+                        开始上传
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 资料数据管理
+        let materials = [];
+
+        // 从localStorage加载资料数据
+        function loadMaterials() {
+            const savedMaterials = localStorage.getItem('admin_materials');
+            if (savedMaterials) {
+                materials = JSON.parse(savedMaterials);
+            } else {
+                // 初始化默认资料数据
+                materials = [
+                    {
+                        id: 1,
+                        name: '高等数学教材',
+                        type: 'document',
+                        size: '2.5MB',
+                        uploadTime: '2024-01-10',
+                        uploader: '李老师',
+                        course: 'MATH101',
+                        accessLevel: 'public',
+                        description: '高等数学课程教材PDF版本',
+                        icon: 'file-text',
+                        color: 'text-blue-600'
+                    },
+                    {
+                        id: 2,
+                        name: 'Python编程视频',
+                        type: 'video',
+                        size: '156MB',
+                        uploadTime: '2024-01-12',
+                        uploader: '王老师',
+                        course: 'CS101',
+                        accessLevel: 'students',
+                        description: 'Python基础编程教学视频',
+                        icon: 'video',
+                        color: 'text-red-600'
+                    },
+                    {
+                        id: 3,
+                        name: '英语听力材料',
+                        type: 'audio',
+                        size: '8.3MB',
+                        uploadTime: '2024-01-08',
+                        uploader: '张老师',
+                        course: 'ENG101',
+                        accessLevel: 'public',
+                        description: '英语听力练习音频文件',
+                        icon: 'headphones',
+                        color: 'text-green-600'
+                    },
+                    {
+                        id: 4,
+                        name: '课程PPT模板',
+                        type: 'document',
+                        size: '1.2MB',
+                        uploadTime: '2024-01-05',
+                        uploader: '管理员',
+                        course: '',
+                        accessLevel: 'teachers',
+                        description: '通用课程PPT模板',
+                        icon: 'presentation',
+                        color: 'text-purple-600'
+                    }
+                ];
+                // 保存到localStorage
+                saveMaterials();
+            }
+        }
+
+        // 保存资料数据到localStorage
+        function saveMaterials() {
+            localStorage.setItem('admin_materials', JSON.stringify(materials));
+        }
+
+        let currentPage = 1;
+        const pageSize = 12;
+        let filteredMaterials = [];
+
+        // 渲染资料列表
+        function renderMaterials() {
+            const grid = document.getElementById('materials-grid');
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageMaterials = filteredMaterials.slice(startIndex, endIndex);
+
+            grid.innerHTML = pageMaterials.map(material => `
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <i data-lucide="${material.icon}" class="h-8 w-8 ${material.color} mr-3"></i>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900 truncate">${material.name}</h3>
+                                    <p class="text-xs text-gray-500">${material.size}</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button onclick="downloadMaterial(${material.id})" class="p-1 text-gray-400 hover:text-blue-600">
+                                    <i data-lucide="download" class="h-4 w-4"></i>
+                                </button>
+                                <button onclick="editMaterial(${material.id})" class="p-1 text-gray-400 hover:text-purple-600">
+                                    <i data-lucide="edit" class="h-4 w-4"></i>
+                                </button>
+                                <button onclick="deleteMaterial(${material.id})" class="p-1 text-gray-400 hover:text-red-600">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-3 line-clamp-2">${material.description}</p>
+                        <div class="space-y-1 text-xs text-gray-500">
+                            <div class="flex justify-between">
+                                <span>上传者:</span>
+                                <span>${material.uploader}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>上传时间:</span>
+                                <span>${material.uploadTime}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>所属课程:</span>
+                                <span>${material.course || '无'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>访问权限:</span>
+                                <span class="inline-flex px-1 py-0.5 text-xs rounded ${
+                                    material.accessLevel === 'public' ? 'bg-green-100 text-green-800' :
+                                    material.accessLevel === 'students' ? 'bg-blue-100 text-blue-800' :
+                                    material.accessLevel === 'teachers' ? 'bg-purple-100 text-purple-800' :
+                                    'bg-gray-100 text-gray-800'
+                                }">
+                                    ${material.accessLevel === 'public' ? '公开' :
+                                      material.accessLevel === 'students' ? '仅学生' :
+                                      material.accessLevel === 'teachers' ? '仅教师' : '私有'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 更新分页信息
+            document.getElementById('start-index').textContent = startIndex + 1;
+            document.getElementById('end-index').textContent = Math.min(endIndex, filteredMaterials.length);
+            document.getElementById('total-count').textContent = filteredMaterials.length;
+            document.getElementById('current-page').textContent = currentPage;
+
+            // 更新分页按钮状态
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = endIndex >= filteredMaterials.length;
+
+            // 重新初始化图标
+            lucide.createIcons();
+        }
+
+        // 搜索和筛选
+        function filterMaterials() {
+            const searchTerm = document.getElementById('search-materials').value.toLowerCase();
+            const typeFilter = document.getElementById('type-filter').value;
+
+            filteredMaterials = materials.filter(material => {
+                const matchesSearch = material.name.toLowerCase().includes(searchTerm) ||
+                                    material.description.toLowerCase().includes(searchTerm) ||
+                                    material.uploader.toLowerCase().includes(searchTerm);
+                const matchesType = !typeFilter || material.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+
+            currentPage = 1;
+            renderMaterials();
+        }
+
+        // 下载资料
+        function downloadMaterial(materialId) {
+            alert(`下载功能开发中...\n资料ID: ${materialId}`);
+        }
+
+        // 编辑资料
+        function editMaterial(materialId) {
+            alert(`编辑功能开发中...\n资料ID: ${materialId}`);
+        }
+
+        // 删除资料
+        function deleteMaterial(materialId) {
+            if (confirm('确定要删除这个资料吗？此操作不可恢复。')) {
+                materials = materials.filter(m => m.id !== materialId);
+                saveMaterials(); // 保存到localStorage
+                filterMaterials();
+                alert('资料删除成功！');
+            }
+        }
+
+        // 文件上传处理
+        function handleFileUpload() {
+            const fileInput = document.getElementById('file-input');
+            const fileList = document.getElementById('file-list');
+            
+            fileList.innerHTML = '';
+            
+            Array.from(fileInput.files).forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+                fileItem.innerHTML = `
+                    <div class="flex items-center">
+                        <i data-lucide="file" class="h-4 w-4 text-gray-400 mr-2"></i>
+                        <span class="text-sm text-gray-700">${file.name}</span>
+                    </div>
+                    <span class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)}MB</span>
+                `;
+                fileList.appendChild(fileItem);
+                
+                // 自动填充资料名称
+                if (index === 0) {
+                    document.getElementById('material-name').value = file.name.split('.')[0];
+                }
+            });
+            
+            lucide.createIcons();
+        }
+
+        // 事件监听器
+        document.getElementById('upload-material-btn').addEventListener('click', () => {
+            document.getElementById('upload-modal').style.display = 'block';
+        });
+        document.getElementById('cancel-upload-btn').addEventListener('click', () => {
+            document.getElementById('upload-modal').style.display = 'none';
+        });
+        document.getElementById('file-input').addEventListener('change', handleFileUpload);
+        document.getElementById('search-materials').addEventListener('input', filterMaterials);
+        document.getElementById('type-filter').addEventListener('change', filterMaterials);
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderMaterials();
+            }
+        });
+        document.getElementById('next-page').addEventListener('click', () => {
+            const maxPage = Math.ceil(filteredMaterials.length / pageSize);
+            if (currentPage < maxPage) {
+                currentPage++;
+                renderMaterials();
+            }
+        });
+        document.getElementById('upload-btn').addEventListener('click', () => {
+            const name = document.getElementById('material-name').value;
+            const type = document.getElementById('material-type').value;
+            const course = document.getElementById('course-select').value;
+            const accessLevel = document.getElementById('access-level').value;
+            const description = document.getElementById('material-description').value;
+            
+            if (!name) {
+                alert('请输入资料名称');
+                return;
+            }
+            
+            // 模拟上传
+            const newMaterial = {
+                id: Math.max(...materials.map(m => m.id), 0) + 1, // 确保ID唯一
+                name: name,
+                type: type,
+                size: '1.0MB',
+                uploadTime: new Date().toISOString().split('T')[0],
+                uploader: '管理员',
+                course: course,
+                accessLevel: accessLevel,
+                description: description,
+                icon: type === 'document' ? 'file-text' : 
+                      type === 'video' ? 'video' : 
+                      type === 'image' ? 'image' : 
+                      type === 'audio' ? 'headphones' : 'file',
+                color: type === 'document' ? 'text-blue-600' : 
+                       type === 'video' ? 'text-red-600' : 
+                       type === 'image' ? 'text-green-600' : 
+                       type === 'audio' ? 'text-purple-600' : 'text-gray-600'
+            };
+            
+            materials.push(newMaterial);
+            saveMaterials(); // 保存到localStorage
+            document.getElementById('upload-modal').style.display = 'none';
+            document.getElementById('file-input').value = '';
+            document.getElementById('file-list').innerHTML = '';
+            filterMaterials();
+            alert('资料上传成功！');
+        });
+        document.getElementById('create-folder-btn').addEventListener('click', () => {
+            alert('新建文件夹功能开发中...');
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('upload-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('upload-modal')) {
+                document.getElementById('upload-modal').style.display = 'none';
+            }
+        });
+
+        // 拖拽上传
+        const uploadArea = document.getElementById('file-upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            document.getElementById('file-input').files = e.dataTransfer.files;
+            handleFileUpload();
+        });
+
+        // 初始化页面
+        loadMaterials(); // 加载资料数据
+        filteredMaterials = [...materials]; // 初始化筛选后的资料列表
+        renderMaterials();
+    </script>
+</body>
+</html> 

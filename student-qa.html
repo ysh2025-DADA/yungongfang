@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 问答中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-item.active { background-color: rgba(59, 130, 246, 0.2); border-right: 3px solid #3b82f6; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 2% auto; padding: 0; border-radius: 8px; width: 95%; max-width: 800px; height: 90%; animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .question-card { transition: all 0.2s ease; }
+        .question-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .answer-item { border-left: 3px solid #e5e7eb; }
+        .answer-item.accepted { border-left-color: #10b981; }
+        .tag { transition: all 0.2s ease; }
+        .tag:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-blue-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 学生中心</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="bell" class="h-5 w-5 text-gray-400"></i>
+                        <span class="text-sm text-gray-700">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-blue-600">张</span>
+                        </div>
+                        <span class="text-sm text-gray-700">张三同学</span>
+                    </div>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        学习概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#courses'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        我的课程
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#materials'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        学习资料
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-assignment.html'">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 mr-3"></i>
+                        作业管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-grades.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        成绩查询
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-schedule.html'">
+                        <i data-lucide="calendar" class="h-5 w-5 mr-3"></i>
+                        课程表
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-blue-700 rounded-lg cursor-pointer">
+                        <i data-lucide="help-circle" class="h-5 w-5 mr-3"></i>
+                        问答中心
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">问答中心</h1>
+                    <p class="text-gray-600">与老师和同学交流学习问题</p>
+                </div>
+
+                <!-- 搜索和筛选 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-6">
+                    <div class="p-6 border-b">
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+                            <div class="flex-1 max-w-2xl">
+                                <div class="relative">
+                                    <input type="text" id="search-questions" placeholder="搜索问题..." class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <i data-lucide="search" class="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                                </div>
+                            </div>
+                            <div class="flex space-x-4">
+                                <select id="category-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">全部分类</option>
+                                    <option value="math">数学</option>
+                                    <option value="cs">计算机</option>
+                                    <option value="english">英语</option>
+                                    <option value="physics">物理</option>
+                                    <option value="chemistry">化学</option>
+                                </select>
+                                <select id="status-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">全部状态</option>
+                                    <option value="open">待回答</option>
+                                    <option value="answered">已回答</option>
+                                    <option value="closed">已关闭</option>
+                                </select>
+                                <button onclick="showAskQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm transition-colors">
+                                    <i data-lucide="plus" class="h-4 w-4 inline mr-2"></i>
+                                    提问
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 热门标签 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-6">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">热门标签</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-blue-200" onclick="filterByTag('微积分')">微积分</span>
+                            <span class="tag bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-200" onclick="filterByTag('C语言')">C语言</span>
+                            <span class="tag bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-purple-200" onclick="filterByTag('英语语法')">英语语法</span>
+                            <span class="tag bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-yellow-200" onclick="filterByTag('线性代数')">线性代数</span>
+                            <span class="tag bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-red-200" onclick="filterByTag('算法')">算法</span>
+                            <span class="tag bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-indigo-200" onclick="filterByTag('数据结构')">数据结构</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 问题列表 -->
+                <div class="space-y-4" id="questions-list">
+                    <!-- 问题卡片将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-white rounded-lg shadow-sm border mt-6">
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span id="start-index">1</span> 到 <span id="end-index">10</span> 条，共 <span id="total-count">25</span> 条
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
+                                上一页
+                            </button>
+                            <span id="current-page" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">1</span>
+                            <button id="next-page" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提问模态框 -->
+    <div id="ask-question-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-blue-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">提出问题</h3>
+            </div>
+            <div class="p-6">
+                <form id="ask-question-form">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">问题标题</label>
+                        <input type="text" id="question-title" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请简要描述您的问题..." required>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">问题分类</label>
+                        <select id="question-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">选择分类</option>
+                            <option value="math">数学</option>
+                            <option value="cs">计算机</option>
+                            <option value="english">英语</option>
+                            <option value="physics">物理</option>
+                            <option value="chemistry">化学</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">问题详情</label>
+                        <textarea id="question-content" rows="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请详细描述您的问题，可以包含代码、公式等..." required></textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标签</label>
+                        <input type="text" id="question-tags" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="输入标签，用逗号分隔（如：微积分,导数,极限）">
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="closeAskQuestion()" class="px-6 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                            取消
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                            发布问题
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 问题详情模态框 -->
+    <div id="question-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-green-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">问题详情</h3>
+            </div>
+            <div class="p-6">
+                <div id="question-detail-content">
+                    <!-- 问题详情内容将通过JavaScript动态生成 -->
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="button" onclick="closeQuestionDetail()" class="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 模拟问题数据
+        let questionsData = [
+            {
+                id: 1,
+                title: '如何理解微积分中的极限概念？',
+                content: '我在学习微积分时对极限概念感到困惑，特别是当x趋近于某个值时，函数值的变化规律。能否用通俗易懂的方式解释一下？',
+                category: 'math',
+                tags: ['微积分', '极限', '数学基础'],
+                author: '张三',
+                authorId: '2021001',
+                createTime: '2024-01-15 14:30',
+                status: 'answered',
+                viewCount: 156,
+                answerCount: 3,
+                acceptedAnswer: 1,
+                answers: [
+                    {
+                        id: 1,
+                        content: '极限可以理解为函数值无限接近某个数的过程。比如当x趋近于0时，sin(x)/x趋近于1。这就像你越来越接近一个目标，但永远不真正到达它。',
+                        author: '李老师',
+                        authorType: 'teacher',
+                        createTime: '2024-01-15 15:00',
+                        isAccepted: true,
+                        upvotes: 12
+                    },
+                    {
+                        id: 2,
+                        content: '建议你画图理解，极限就是函数图像在某一点的趋势。',
+                        author: '王同学',
+                        authorType: 'student',
+                        createTime: '2024-01-15 16:30',
+                        isAccepted: false,
+                        upvotes: 5
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: 'C语言指针和数组的关系',
+                content: '在学习C语言时，对指针和数组的关系不太清楚，它们之间有什么联系和区别？',
+                category: 'cs',
+                tags: ['C语言', '指针', '数组'],
+                author: '李四',
+                authorId: '2021002',
+                createTime: '2024-01-14 10:15',
+                status: 'open',
+                viewCount: 89,
+                answerCount: 1,
+                acceptedAnswer: null,
+                answers: [
+                    {
+                        id: 3,
+                        content: '数组名实际上是指向第一个元素的指针，但数组是连续的内存空间。',
+                        author: '王老师',
+                        authorType: 'teacher',
+                        createTime: '2024-01-14 11:00',
+                        isAccepted: false,
+                        upvotes: 8
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: '英语时态的正确使用方法',
+                content: '在英语写作中，经常搞混各种时态的使用，有什么好的记忆方法吗？',
+                category: 'english',
+                tags: ['英语', '时态', '语法'],
+                author: '王五',
+                authorId: '2021003',
+                createTime: '2024-01-13 16:45',
+                status: 'answered',
+                viewCount: 234,
+                answerCount: 4,
+                acceptedAnswer: 2,
+                answers: [
+                    {
+                        id: 4,
+                        content: '时态主要看时间状语和语境，建议多做练习。',
+                        author: '赵同学',
+                        authorType: 'student',
+                        createTime: '2024-01-13 17:00',
+                        isAccepted: false,
+                        upvotes: 3
+                    },
+                    {
+                        id: 5,
+                        content: '记住时态的时间轴：过去-现在-将来，每种时态都有其特定的使用场景。',
+                        author: '张老师',
+                        authorType: 'teacher',
+                        createTime: '2024-01-13 18:30',
+                        isAccepted: true,
+                        upvotes: 15
+                    }
+                ]
+            }
+        ];
+
+        let filteredQuestions = [...questionsData];
+        let currentPage = 1;
+        const pageSize = 5;
+
+        // 渲染问题列表
+        function renderQuestions() {
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+            const questionsList = document.getElementById('questions-list');
+            
+            questionsList.innerHTML = pageQuestions.map(question => `
+                <div class="question-card bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="help-circle" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-lg font-medium text-gray-900 cursor-pointer hover:text-blue-600" onclick="showQuestionDetail(${question.id})">
+                                    ${question.title}
+                                </h3>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    question.status === 'answered' ? 'bg-green-100 text-green-800' :
+                                    question.status === 'closed' ? 'bg-red-100 text-red-800' :
+                                    'bg-yellow-100 text-yellow-800'
+                                }">
+                                    ${question.status === 'answered' ? '已回答' :
+                                      question.status === 'closed' ? '已关闭' : '待回答'}
+                                </span>
+                            </div>
+                            <p class="text-gray-600 mb-3 line-clamp-2">${question.content}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                    <span class="flex items-center">
+                                        <i data-lucide="user" class="h-4 w-4 mr-1"></i>
+                                        ${question.author}
+                                    </span>
+                                    <span class="flex items-center">
+                                        <i data-lucide="clock" class="h-4 w-4 mr-1"></i>
+                                        ${question.createTime}
+                                    </span>
+                                    <span class="flex items-center">
+                                        <i data-lucide="eye" class="h-4 w-4 mr-1"></i>
+                                        ${question.viewCount}
+                                    </span>
+                                    <span class="flex items-center">
+                                        <i data-lucide="message-circle" class="h-4 w-4 mr-1"></i>
+                                        ${question.answerCount}
+                                    </span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    ${question.tags.map(tag => `
+                                        <span class="tag bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                                            ${tag}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 更新分页信息
+            updatePagination();
+            
+            // 重新初始化图标
+            lucide.createIcons();
+        }
+
+        // 更新分页信息
+        function updatePagination() {
+            const startIndex = (currentPage - 1) * pageSize + 1;
+            const endIndex = Math.min(currentPage * pageSize, filteredQuestions.length);
+            
+            document.getElementById('start-index').textContent = startIndex;
+            document.getElementById('end-index').textContent = endIndex;
+            document.getElementById('total-count').textContent = filteredQuestions.length;
+            document.getElementById('current-page').textContent = currentPage;
+            
+            // 更新分页按钮状态
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = endIndex >= filteredQuestions.length;
+        }
+
+        // 显示提问模态框
+        function showAskQuestion() {
+            document.getElementById('ask-question-modal').style.display = 'block';
+        }
+
+        // 关闭提问模态框
+        function closeAskQuestion() {
+            document.getElementById('ask-question-modal').style.display = 'none';
+            document.getElementById('ask-question-form').reset();
+        }
+
+        // 显示问题详情
+        function showQuestionDetail(questionId) {
+            const question = questionsData.find(q => q.id === questionId);
+            if (!question) return;
+
+            const detailContent = document.getElementById('question-detail-content');
+            detailContent.innerHTML = `
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">${question.title}</h2>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+                        <span class="flex items-center">
+                            <i data-lucide="user" class="h-4 w-4 mr-1"></i>
+                            ${question.author}
+                        </span>
+                        <span class="flex items-center">
+                            <i data-lucide="clock" class="h-4 w-4 mr-1"></i>
+                            ${question.createTime}
+                        </span>
+                        <span class="flex items-center">
+                            <i data-lucide="eye" class="h-4 w-4 mr-1"></i>
+                            ${question.viewCount} 次浏览
+                        </span>
+                        <span class="flex items-center">
+                            <i data-lucide="message-circle" class="h-4 w-4 mr-1"></i>
+                            ${question.answerCount} 个回答
+                        </span>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <p class="text-gray-700">${question.content}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        ${question.tags.map(tag => `
+                            <span class="tag bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                ${tag}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">回答 (${question.answers.length})</h3>
+                    <div class="space-y-4">
+                        ${question.answers.map(answer => `
+                            <div class="answer-item ${answer.isAccepted ? 'accepted' : ''} pl-4">
+                                <div class="bg-white border rounded-lg p-4">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm font-medium text-gray-900">${answer.author}</span>
+                                            <span class="text-xs text-gray-500">${answer.authorType === 'teacher' ? '教师' : '学生'}</span>
+                                            ${answer.isAccepted ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">已采纳</span>' : ''}
+                                        </div>
+                                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                            <span>${answer.createTime}</span>
+                                            <button class="flex items-center text-gray-400 hover:text-blue-600">
+                                                <i data-lucide="thumbs-up" class="h-4 w-4 mr-1"></i>
+                                                ${answer.upvotes}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700">${answer.content}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">添加回答</h3>
+                    <form id="answer-form">
+                        <textarea id="answer-content" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="写下你的回答..."></textarea>
+                        <div class="flex justify-end mt-4">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                提交回答
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('question-detail-modal').style.display = 'block';
+            lucide.createIcons();
+        }
+
+        // 关闭问题详情
+        function closeQuestionDetail() {
+            document.getElementById('question-detail-modal').style.display = 'none';
+        }
+
+        // 筛选问题
+        function filterQuestions() {
+            const searchTerm = document.getElementById('search-questions').value.toLowerCase();
+            const categoryFilter = document.getElementById('category-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+
+            filteredQuestions = questionsData.filter(question => {
+                const matchesSearch = question.title.toLowerCase().includes(searchTerm) ||
+                                    question.content.toLowerCase().includes(searchTerm) ||
+                                    question.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                const matchesCategory = !categoryFilter || question.category === categoryFilter;
+                const matchesStatus = !statusFilter || question.status === statusFilter;
+                
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+
+            currentPage = 1;
+            renderQuestions();
+        }
+
+        // 按标签筛选
+        function filterByTag(tag) {
+            document.getElementById('search-questions').value = tag;
+            filterQuestions();
+        }
+
+        // 提交问题
+        function submitQuestion(formData) {
+            const newQuestion = {
+                id: questionsData.length + 1,
+                title: formData.get('title'),
+                content: formData.get('content'),
+                category: formData.get('category'),
+                tags: formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag),
+                author: '张三',
+                authorId: '2021001',
+                createTime: new Date().toLocaleString('zh-CN'),
+                status: 'open',
+                viewCount: 0,
+                answerCount: 0,
+                acceptedAnswer: null,
+                answers: []
+            };
+
+            questionsData.unshift(newQuestion);
+            filteredQuestions = [...questionsData];
+            currentPage = 1;
+            renderQuestions();
+            
+            closeAskQuestion();
+            alert('问题发布成功！');
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 搜索和筛选
+            document.getElementById('search-questions').addEventListener('input', filterQuestions);
+            document.getElementById('category-filter').addEventListener('change', filterQuestions);
+            document.getElementById('status-filter').addEventListener('change', filterQuestions);
+
+            // 分页
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderQuestions();
+                }
+            });
+
+            document.getElementById('next-page').addEventListener('click', () => {
+                const maxPage = Math.ceil(filteredQuestions.length / pageSize);
+                if (currentPage < maxPage) {
+                    currentPage++;
+                    renderQuestions();
+                }
+            });
+
+            // 提问表单
+            document.getElementById('ask-question-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                submitQuestion(formData);
+            });
+
+            // 回答表单
+            document.addEventListener('submit', (e) => {
+                if (e.target.id === 'answer-form') {
+                    e.preventDefault();
+                    const answerContent = document.getElementById('answer-content').value;
+                    if (answerContent.trim()) {
+                        alert('回答提交成功！');
+                        document.getElementById('answer-content').value = '';
+                    }
+                }
+            });
+
+            // 点击模态框外部关闭
+            document.getElementById('ask-question-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('ask-question-modal')) {
+                    closeAskQuestion();
+                }
+            });
+
+            document.getElementById('question-detail-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('question-detail-modal')) {
+                    closeQuestionDetail();
+                }
+            });
+
+            // 初始化
+            renderQuestions();
+        });
+    </script>
+</body>
+</html> 

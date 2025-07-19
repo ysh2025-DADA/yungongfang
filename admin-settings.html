@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 系统设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        .sidebar-item.active {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-right: 3px solid #8b5cf6;
+        }
+        .setting-tab {
+            transition: all 0.3s ease;
+        }
+        .setting-tab.active {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #8b5cf6;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">管理员：18072830839</span>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        控制台概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-users.html'">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>
+                        用户管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        课程管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-warehouse.html'">
+                        <i data-lucide="database" class="h-5 w-5 mr-3"></i>
+                        仓库管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-statistics.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        数据统计
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-purple-700 rounded-lg cursor-pointer">
+                        <i data-lucide="settings" class="h-5 w-5 mr-3"></i>
+                        系统设置
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">系统设置</h1>
+                    <p class="text-gray-600">配置平台参数、管理权限、系统维护等</p>
+                </div>
+
+                <!-- 设置选项卡 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-6">
+                    <div class="border-b">
+                        <nav class="flex space-x-8 px-6">
+                            <button class="setting-tab active py-4 px-1 border-b-2 border-purple-600 text-sm font-medium" onclick="showTab('general')">
+                                基本设置
+                            </button>
+                            <button class="setting-tab py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700" onclick="showTab('security')">
+                                安全设置
+                            </button>
+                            <button class="setting-tab py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700" onclick="showTab('permissions')">
+                                权限管理
+                            </button>
+                            <button class="setting-tab py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700" onclick="showTab('backup')">
+                                备份恢复
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- 基本设置 -->
+                    <div id="general-settings" class="p-6">
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">平台信息</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">平台名称</label>
+                                        <input type="text" value="教育平台管理系统" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">平台版本</label>
+                                        <input type="text" value="v1.0.0" readonly class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">管理员邮箱</label>
+                                        <input type="email" value="admin@eduplatform.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">联系电话</label>
+                                        <input type="tel" value="400-123-4567" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">功能开关</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">用户注册</p>
+                                            <p class="text-xs text-gray-500">允许新用户注册账号</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">第三方登录</p>
+                                            <p class="text-xs text-gray-500">支持微信、QQ等第三方登录</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">邮件通知</p>
+                                            <p class="text-xs text-gray-500">发送邮件通知给用户</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">维护模式</p>
+                                            <p class="text-xs text-gray-500">开启系统维护模式</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 安全设置 -->
+                    <div id="security-settings" class="p-6 hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">密码策略</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">密码最小长度</p>
+                                            <p class="text-xs text-gray-500">设置密码的最小字符数</p>
+                                        </div>
+                                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                            <option>6位</option>
+                                            <option selected>8位</option>
+                                            <option>10位</option>
+                                            <option>12位</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">密码复杂度</p>
+                                            <p class="text-xs text-gray-500">要求包含大小写字母、数字和特殊字符</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">密码过期时间</p>
+                                            <p class="text-xs text-gray-500">设置密码的有效期</p>
+                                        </div>
+                                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                            <option>30天</option>
+                                            <option selected>90天</option>
+                                            <option>180天</option>
+                                            <option>365天</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">登录安全</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">登录失败锁定</p>
+                                            <p class="text-xs text-gray-500">连续登录失败后锁定账号</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">会话超时</p>
+                                            <p class="text-xs text-gray-500">设置用户会话超时时间</p>
+                                        </div>
+                                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                            <option>15分钟</option>
+                                            <option selected>30分钟</option>
+                                            <option>1小时</option>
+                                            <option>2小时</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 权限管理 -->
+                    <div id="permissions-settings" class="p-6 hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">角色权限</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">功能模块</th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">管理员</th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">教师</th>
+                                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">学生</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">用户管理</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="x" class="h-4 w-4 text-red-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="x" class="h-4 w-4 text-red-600 mx-auto"></i>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">课程管理</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="x" class="h-4 w-4 text-red-600 mx-auto"></i>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">资料管理</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">数据统计</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="check" class="h-4 w-4 text-green-600 mx-auto"></i>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    <i data-lucide="x" class="h-4 w-4 text-red-600 mx-auto"></i>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 备份恢复 -->
+                    <div id="backup-settings" class="p-6 hidden">
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">数据备份</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">自动备份</p>
+                                            <p class="text-xs text-gray-500">定期自动备份系统数据</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">备份频率</p>
+                                            <p class="text-xs text-gray-500">设置自动备份的时间间隔</p>
+                                        </div>
+                                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                            <option>每天</option>
+                                            <option selected>每周</option>
+                                            <option>每月</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">保留备份数量</p>
+                                            <p class="text-xs text-gray-500">设置保留的备份文件数量</p>
+                                        </div>
+                                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                            <option>5个</option>
+                                            <option selected>10个</option>
+                                            <option>20个</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">手动操作</h3>
+                                <div class="flex space-x-4">
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                        <i data-lucide="download" class="h-4 w-4 mr-2"></i>
+                                        立即备份
+                                    </button>
+                                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                        <i data-lucide="upload" class="h-4 w-4 mr-2"></i>
+                                        恢复数据
+                                    </button>
+                                    <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                        <i data-lucide="trash-2" class="h-4 w-4 mr-2"></i>
+                                        清理备份
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">最近备份记录</h3>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">自动备份 - 2024-01-15 02:00</p>
+                                            <p class="text-xs text-gray-500">备份大小: 156MB</p>
+                                        </div>
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">成功</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">手动备份 - 2024-01-10 15:30</p>
+                                            <p class="text-xs text-gray-500">备份大小: 148MB</p>
+                                        </div>
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">成功</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 保存按钮 -->
+                <div class="flex justify-end space-x-4">
+                    <button class="px-6 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        重置
+                    </button>
+                    <button class="px-6 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">
+                        保存设置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 显示设置选项卡
+        function showTab(tabName) {
+            // 隐藏所有设置内容
+            document.querySelectorAll('[id$="-settings"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // 移除所有选项卡的active类
+            document.querySelectorAll('.setting-tab').forEach(tab => {
+                tab.classList.remove('active', 'border-purple-600', 'text-purple-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // 显示选中的设置内容
+            document.getElementById(tabName + '-settings').classList.remove('hidden');
+            
+            // 激活选中的选项卡
+            event.target.classList.add('active', 'border-purple-600', 'text-purple-600');
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+        }
+
+        // 保存设置
+        document.querySelector('button:contains("保存设置")').addEventListener('click', function() {
+            alert('设置保存成功！');
+        });
+
+        // 重置设置
+        document.querySelector('button:contains("重置")').addEventListener('click', function() {
+            if (confirm('确定要重置所有设置吗？')) {
+                alert('设置已重置为默认值！');
+            }
+        });
+
+        // 立即备份
+        document.querySelector('button:contains("立即备份")').addEventListener('click', function() {
+            this.innerHTML = '<i data-lucide="loader" class="h-4 w-4 mr-2 animate-spin"></i>备份中...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i data-lucide="download" class="h-4 w-4 mr-2"></i>立即备份';
+                this.disabled = false;
+                alert('数据备份完成！');
+                lucide.createIcons();
+            }, 3000);
+        });
+
+        // 恢复数据
+        document.querySelector('button:contains("恢复数据")').addEventListener('click', function() {
+            if (confirm('确定要恢复数据吗？这将覆盖当前数据。')) {
+                alert('数据恢复功能开发中...');
+            }
+        });
+
+        // 清理备份
+        document.querySelector('button:contains("清理备份")').addEventListener('click', function() {
+            if (confirm('确定要清理旧的备份文件吗？')) {
+                alert('备份文件清理完成！');
+            }
+        });
+    </script>
+</body>
+</html> 

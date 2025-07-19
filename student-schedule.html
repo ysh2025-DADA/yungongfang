@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 课程表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-item.active { background-color: rgba(59, 130, 246, 0.2); border-right: 3px solid #3b82f6; }
+        .schedule-cell { min-height: 80px; border: 1px solid #e5e7eb; }
+        .schedule-cell:hover { background-color: #f9fafb; }
+        .course-item { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 6px;
+            padding: 8px;
+            margin: 2px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .course-item:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .course-item.math { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .course-item.cs { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .course-item.english { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .course-item.physics { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .course-item.chemistry { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 0; border-radius: 8px; width: 90%; max-width: 600px; animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-blue-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 学生中心</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="bell" class="h-5 w-5 text-gray-400"></i>
+                        <span class="text-sm text-gray-700">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-blue-600">张</span>
+                        </div>
+                        <span class="text-sm text-gray-700">张三同学</span>
+                    </div>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        学习概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#courses'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        我的课程
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#materials'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        学习资料
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-assignment.html'">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 mr-3"></i>
+                        作业管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-grades.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        成绩查询
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-blue-700 rounded-lg cursor-pointer">
+                        <i data-lucide="calendar" class="h-5 w-5 mr-3"></i>
+                        课程表
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#qa'">
+                        <i data-lucide="help-circle" class="h-5 w-5 mr-3"></i>
+                        问答中心
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">课程表</h1>
+                    <p class="text-gray-600">查看课程安排和时间管理</p>
+                </div>
+
+                <!-- 控制栏 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-6">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-4">
+                                <button onclick="previousWeek()" class="p-2 hover:bg-gray-100 rounded-lg">
+                                    <i data-lucide="chevron-left" class="h-5 w-5 text-gray-600"></i>
+                                </button>
+                                <h2 class="text-xl font-semibold text-gray-900" id="week-display">第1周 (2024年1月15日 - 1月21日)</h2>
+                                <button onclick="nextWeek()" class="p-2 hover:bg-gray-100 rounded-lg">
+                                    <i data-lucide="chevron-right" class="h-5 w-5 text-gray-600"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <button onclick="today()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    今天
+                                </button>
+                                <select id="view-mode" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="week">周视图</option>
+                                    <option value="month">月视图</option>
+                                    <option value="list">列表视图</option>
+                                </select>
+                                <button onclick="exportSchedule()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    <i data-lucide="download" class="h-4 w-4 inline mr-2"></i>
+                                    导出课表
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 周课表 -->
+                <div id="week-view" class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900">本周课程安排</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-8 gap-1">
+                            <!-- 时间列 -->
+                            <div class="text-center font-medium text-gray-700 py-2">时间</div>
+                            <div class="text-center font-medium text-gray-700 py-2">周一</div>
+                            <div class="text-center font-medium text-gray-700 py-2">周二</div>
+                            <div class="text-center font-medium text-gray-700 py-2">周三</div>
+                            <div class="text-center font-medium text-gray-700 py-2">周四</div>
+                            <div class="text-center font-medium text-gray-700 py-2">周五</div>
+                            <div class="text-center font-medium text-gray-700 py-2">周六</div>
+                            <div class="text-center font-medium text-gray-700 py-2">周日</div>
+
+                            <!-- 第一节课 8:00-9:40 -->
+                            <div class="text-center text-sm text-gray-600 py-2 border-r">8:00-9:40</div>
+                            <div class="schedule-cell p-1" id="monday-1"></div>
+                            <div class="schedule-cell p-1" id="tuesday-1"></div>
+                            <div class="schedule-cell p-1" id="wednesday-1"></div>
+                            <div class="schedule-cell p-1" id="thursday-1"></div>
+                            <div class="schedule-cell p-1" id="friday-1"></div>
+                            <div class="schedule-cell p-1" id="saturday-1"></div>
+                            <div class="schedule-cell p-1" id="sunday-1"></div>
+
+                            <!-- 第二节课 10:00-11:40 -->
+                            <div class="text-center text-sm text-gray-600 py-2 border-r">10:00-11:40</div>
+                            <div class="schedule-cell p-1" id="monday-2"></div>
+                            <div class="schedule-cell p-1" id="tuesday-2"></div>
+                            <div class="schedule-cell p-1" id="wednesday-2"></div>
+                            <div class="schedule-cell p-1" id="thursday-2"></div>
+                            <div class="schedule-cell p-1" id="friday-2"></div>
+                            <div class="schedule-cell p-1" id="saturday-2"></div>
+                            <div class="schedule-cell p-1" id="sunday-2"></div>
+
+                            <!-- 第三节课 14:00-15:40 -->
+                            <div class="text-center text-sm text-gray-600 py-2 border-r">14:00-15:40</div>
+                            <div class="schedule-cell p-1" id="monday-3"></div>
+                            <div class="schedule-cell p-1" id="tuesday-3"></div>
+                            <div class="schedule-cell p-1" id="wednesday-3"></div>
+                            <div class="schedule-cell p-1" id="thursday-3"></div>
+                            <div class="schedule-cell p-1" id="friday-3"></div>
+                            <div class="schedule-cell p-1" id="saturday-3"></div>
+                            <div class="schedule-cell p-1" id="sunday-3"></div>
+
+                            <!-- 第四节课 16:00-17:40 -->
+                            <div class="text-center text-sm text-gray-600 py-2 border-r">16:00-17:40</div>
+                            <div class="schedule-cell p-1" id="monday-4"></div>
+                            <div class="schedule-cell p-1" id="tuesday-4"></div>
+                            <div class="schedule-cell p-1" id="wednesday-4"></div>
+                            <div class="schedule-cell p-1" id="thursday-4"></div>
+                            <div class="schedule-cell p-1" id="friday-4"></div>
+                            <div class="schedule-cell p-1" id="saturday-4"></div>
+                            <div class="schedule-cell p-1" id="sunday-4"></div>
+
+                            <!-- 第五节课 19:00-20:40 -->
+                            <div class="text-center text-sm text-gray-600 py-2 border-r">19:00-20:40</div>
+                            <div class="schedule-cell p-1" id="monday-5"></div>
+                            <div class="schedule-cell p-1" id="tuesday-5"></div>
+                            <div class="schedule-cell p-1" id="wednesday-5"></div>
+                            <div class="schedule-cell p-1" id="thursday-5"></div>
+                            <div class="schedule-cell p-1" id="friday-5"></div>
+                            <div class="schedule-cell p-1" id="saturday-5"></div>
+                            <div class="schedule-cell p-1" id="sunday-5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日课程 -->
+                <div class="bg-white rounded-lg shadow-sm border mt-6">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900">今日课程</h3>
+                    </div>
+                    <div class="p-6">
+                        <div id="today-courses" class="space-y-4">
+                            <!-- 今日课程将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 课程统计 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">本周课程</p>
+                                <p class="text-2xl font-bold text-gray-900">12</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="calendar" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">总学时</p>
+                                <p class="text-2xl font-bold text-gray-900">24</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="clock" class="h-6 w-6 text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">课程种类</p>
+                                <p class="text-2xl font-bold text-gray-900">5</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="book-open" class="h-6 w-6 text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 课程详情模态框 -->
+    <div id="course-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-blue-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">课程详情</h3>
+            </div>
+            <div class="p-6">
+                <div id="course-detail-content">
+                    <!-- 课程详情内容将通过JavaScript动态生成 -->
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="button" onclick="closeCourseDetail()" class="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 当前周数
+        let currentWeek = 1;
+        const totalWeeks = 16;
+
+        // 课程数据
+        const scheduleData = {
+            1: { // 第1周
+                'monday-1': { name: '高等数学', teacher: '李老师', location: '教学楼A101', type: 'math' },
+                'monday-3': { name: '程序设计基础', teacher: '王老师', location: '实验楼B201', type: 'cs' },
+                'tuesday-2': { name: '大学英语', teacher: '张老师', location: '教学楼A102', type: 'english' },
+                'tuesday-4': { name: '高等数学', teacher: '李老师', location: '教学楼A101', type: 'math' },
+                'wednesday-1': { name: '程序设计基础', teacher: '王老师', location: '实验楼B201', type: 'cs' },
+                'wednesday-3': { name: '大学英语', teacher: '张老师', location: '教学楼A102', type: 'english' },
+                'thursday-2': { name: '高等数学', teacher: '李老师', location: '教学楼A101', type: 'math' },
+                'thursday-4': { name: '程序设计基础', teacher: '王老师', location: '实验楼B201', type: 'cs' },
+                'friday-1': { name: '大学英语', teacher: '张老师', location: '教学楼A102', type: 'english' },
+                'friday-3': { name: '高等数学', teacher: '李老师', location: '教学楼A101', type: 'math' }
+            }
+        };
+
+        // 课程详细信息
+        const courseDetails = {
+            '高等数学': {
+                code: 'MATH101',
+                credits: 4,
+                description: '微积分基础课程，包含极限、导数、积分等核心概念',
+                objectives: '掌握微积分的基本概念和计算方法',
+                materials: '《高等数学》第七版',
+                assignments: '每周作业，期中考试，期末考试',
+                officeHours: '周二 14:00-16:00',
+                contact: 'li.math@university.edu'
+            },
+            '程序设计基础': {
+                code: 'CS101',
+                credits: 3,
+                description: '计算机编程入门课程，学习C语言基础语法和程序设计思想',
+                objectives: '掌握C语言编程基础，培养程序设计思维',
+                materials: '《C程序设计语言》',
+                assignments: '实验作业，项目设计，期末考试',
+                officeHours: '周四 15:00-17:00',
+                contact: 'wang.cs@university.edu'
+            },
+            '大学英语': {
+                code: 'ENG101',
+                credits: 2,
+                description: '大学英语基础课程，提升听说读写综合能力',
+                objectives: '提高英语综合应用能力，为专业英语学习打基础',
+                materials: '《大学英语》第四版',
+                assignments: '口语练习，阅读理解，写作作业',
+                officeHours: '周三 10:00-12:00',
+                contact: 'zhang.eng@university.edu'
+            }
+        };
+
+        // 渲染课表
+        function renderSchedule() {
+            // 清空所有单元格
+            const cells = document.querySelectorAll('.schedule-cell');
+            cells.forEach(cell => cell.innerHTML = '');
+
+            // 填充课程数据
+            const weekData = scheduleData[currentWeek] || {};
+            Object.keys(weekData).forEach(cellId => {
+                const cell = document.getElementById(cellId);
+                if (cell) {
+                    const course = weekData[cellId];
+                    cell.innerHTML = `
+                        <div class="course-item ${course.type}" onclick="showCourseDetail('${course.name}')">
+                            <div class="font-medium">${course.name}</div>
+                            <div class="text-xs opacity-90">${course.teacher}</div>
+                            <div class="text-xs opacity-75">${course.location}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            // 更新周显示
+            updateWeekDisplay();
+            
+            // 更新今日课程
+            updateTodayCourses();
+        }
+
+        // 更新周显示
+        function updateWeekDisplay() {
+            const startDate = new Date(2024, 0, 15 + (currentWeek - 1) * 7);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6);
+            
+            const startStr = startDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' });
+            const endStr = endDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' });
+            
+            document.getElementById('week-display').textContent = `第${currentWeek}周 (${startStr} - ${endStr})`;
+        }
+
+        // 更新今日课程
+        function updateTodayCourses() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0是周日，1是周一
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const dayName = dayNames[dayOfWeek];
+            
+            const todayCourses = [];
+            const weekData = scheduleData[currentWeek] || {};
+            
+            // 收集今日课程
+            for (let i = 1; i <= 5; i++) {
+                const cellId = `${dayName}-${i}`;
+                if (weekData[cellId]) {
+                    const course = weekData[cellId];
+                    const timeSlots = [
+                        '8:00-9:40',
+                        '10:00-11:40',
+                        '14:00-15:40',
+                        '16:00-17:40',
+                        '19:00-20:40'
+                    ];
+                    todayCourses.push({
+                        ...course,
+                        time: timeSlots[i - 1],
+                        period: i
+                    });
+                }
+            }
+            
+            // 渲染今日课程
+            const todayContainer = document.getElementById('today-courses');
+            if (todayCourses.length === 0) {
+                todayContainer.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i data-lucide="calendar-x" class="h-12 w-12 text-gray-300 mx-auto mb-4"></i>
+                        <p>今天没有课程安排</p>
+                    </div>
+                `;
+            } else {
+                todayContainer.innerHTML = todayCourses.map(course => `
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span class="text-sm font-medium text-blue-600">${course.period}</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-900">${course.name}</h4>
+                                <p class="text-sm text-gray-600">${course.teacher} · ${course.location}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">${course.time}</p>
+                            <button onclick="showCourseDetail('${course.name}')" class="text-blue-600 hover:text-blue-700 text-sm">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            lucide.createIcons();
+        }
+
+        // 显示课程详情
+        function showCourseDetail(courseName) {
+            const course = courseDetails[courseName];
+            if (!course) return;
+
+            const detailContent = document.getElementById('course-detail-content');
+            detailContent.innerHTML = `
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">${courseName}</h3>
+                    <p class="text-gray-600">${course.description}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-3">课程信息</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">课程代码：</span>
+                                <span class="font-medium">${course.code}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">学分：</span>
+                                <span class="font-medium">${course.credits}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">教学目标：</span>
+                                <span class="font-medium">${course.objectives}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-3">教学安排</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">教材：</span>
+                                <span class="font-medium">${course.materials}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">作业安排：</span>
+                                <span class="font-medium">${course.assignments}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">答疑时间：</span>
+                                <span class="font-medium">${course.officeHours}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">联系方式</h4>
+                    <p class="text-gray-600">邮箱：${course.contact}</p>
+                </div>
+            `;
+
+            document.getElementById('course-detail-modal').style.display = 'block';
+        }
+
+        // 关闭课程详情
+        function closeCourseDetail() {
+            document.getElementById('course-detail-modal').style.display = 'none';
+        }
+
+        // 上一周
+        function previousWeek() {
+            if (currentWeek > 1) {
+                currentWeek--;
+                renderSchedule();
+            }
+        }
+
+        // 下一周
+        function nextWeek() {
+            if (currentWeek < totalWeeks) {
+                currentWeek++;
+                renderSchedule();
+            }
+        }
+
+        // 回到今天
+        function today() {
+            // 这里可以根据实际日期计算当前周数
+            currentWeek = 1;
+            renderSchedule();
+        }
+
+        // 导出课表
+        function exportSchedule() {
+            const weekData = scheduleData[currentWeek] || {};
+            const courses = Object.values(weekData);
+            
+            const csvContent = [
+                ['课程名称', '教师', '地点', '时间', '星期'].join(','),
+                ...courses.map(course => {
+                    // 这里需要根据课程找到对应的时间信息
+                    return [
+                        course.name,
+                        course.teacher,
+                        course.location,
+                        '待定',
+                        '待定'
+                    ].join(',');
+                })
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `第${currentWeek}周课程表.csv`;
+            link.click();
+        }
+
+        // 视图模式切换
+        function changeViewMode() {
+            const viewMode = document.getElementById('view-mode').value;
+            const weekView = document.getElementById('week-view');
+            
+            switch (viewMode) {
+                case 'week':
+                    weekView.style.display = 'block';
+                    break;
+                case 'month':
+                    weekView.style.display = 'none';
+                    alert('月视图功能开发中...');
+                    break;
+                case 'list':
+                    weekView.style.display = 'none';
+                    alert('列表视图功能开发中...');
+                    break;
+            }
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 视图模式切换
+            document.getElementById('view-mode').addEventListener('change', changeViewMode);
+            
+            // 点击模态框外部关闭
+            document.getElementById('course-detail-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('course-detail-modal')) {
+                    closeCourseDetail();
+                }
+            });
+
+            // 初始化
+            renderSchedule();
+        });
+    </script>
+</body>
+</html> 

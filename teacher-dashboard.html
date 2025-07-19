@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 教师中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(34, 197, 94, 0.1); }
+        .sidebar-item.active { background-color: rgba(34, 197, 94, 0.2); border-right: 3px solid #22c55e; }
+        .card { transition: all 0.2s ease; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .progress-bar { transition: width 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-green-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 教师中心</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="bell" class="h-5 w-5 text-gray-400"></i>
+                        <span class="text-sm text-gray-700">5</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-green-600" id="user-initial">李</span>
+                        </div>
+                        <span class="text-sm text-gray-700" id="user-name">李老师</span>
+                    </div>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-green-700 rounded-lg cursor-pointer">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        教学概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="showSection('courses')">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        我的课程
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="showSection('students')">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>
+                        学生管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="showSection('assignments')">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 mr-3"></i>
+                        作业管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="showSection('grades')">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        成绩管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="showSection('materials')">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-green-700" onclick="showSection('qa')">
+                        <i data-lucide="help-circle" class="h-5 w-5 mr-3"></i>
+                        答疑解惑
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 教学概览页面 -->
+                <div id="overview-section" class="space-y-6">
+                    <!-- 欢迎信息 -->
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
+                        <h1 class="text-2xl font-bold mb-2">欢迎回来，李老师！</h1>
+                        <p class="text-green-100">今天有3门课程，继续为教育事业贡献力量！</p>
+                    </div>
+
+                    <!-- 教学统计 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-green-100 rounded-lg">
+                                    <i data-lucide="book-open" class="h-6 w-6 text-green-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">进行中课程</p>
+                                    <p class="text-2xl font-bold text-gray-900">3</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i data-lucide="users" class="h-6 w-6 text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">学生总数</p>
+                                    <p class="text-2xl font-bold text-gray-900">156</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-orange-100 rounded-lg">
+                                    <i data-lucide="clipboard-check" class="h-6 w-6 text-orange-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">待批改作业</p>
+                                    <p class="text-2xl font-bold text-gray-900">12</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm p-6 border">
+                            <div class="flex items-center">
+                                <div class="p-2 bg-purple-100 rounded-lg">
+                                    <i data-lucide="message-circle" class="h-6 w-6 text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">待回答问题</p>
+                                    <p class="text-2xl font-bold text-gray-900">8</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 今日课程 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h2 class="text-lg font-semibold text-gray-900">今日课程</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-green-100 rounded-lg mr-4">
+                                            <i data-lucide="calculator" class="h-6 w-6 text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">高等数学</h3>
+                                            <p class="text-xs text-gray-500">8:00-9:40 · A101教室</p>
+                                            <p class="text-xs text-gray-500">学生：45人</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">进行中</span>
+                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            进入课堂
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-blue-100 rounded-lg mr-4">
+                                            <i data-lucide="code" class="h-6 w-6 text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">程序设计</h3>
+                                            <p class="text-xs text-gray-500">10:00-11:40 · B203教室</p>
+                                            <p class="text-xs text-gray-500">学生：38人</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">未开始</span>
+                                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            准备上课
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-purple-100 rounded-lg mr-4">
+                                            <i data-lucide="atom" class="h-6 w-6 text-purple-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">大学物理</h3>
+                                            <p class="text-xs text-gray-500">14:00-15:40 · C305教室</p>
+                                            <p class="text-xs text-gray-500">学生：42人</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">未开始</span>
+                                        <button class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            准备上课
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 待批改作业 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h2 class="text-lg font-semibold text-gray-900">待批改作业</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 border border-orange-200 bg-orange-50 rounded-lg">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">高等数学作业三</h3>
+                                        <p class="text-xs text-gray-500">提交时间：2024-01-18 15:30</p>
+                                        <p class="text-xs text-orange-600">待批改：45份</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded">紧急</span>
+                                        <button class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            开始批改
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">程序设计实验报告</h3>
+                                        <p class="text-xs text-gray-500">提交时间：2024-01-17 20:15</p>
+                                        <p class="text-xs text-gray-600">待批改：38份</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">进行中</span>
+                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            继续批改
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 我的课程页面 -->
+                <div id="courses-section" class="space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-900">我的课程</h2>
+                                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    创建新课程
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div class="card bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <div class="p-2 bg-green-100 rounded-lg mr-3">
+                                            <i data-lucide="calculator" class="h-6 w-6 text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">高等数学</h3>
+                                            <p class="text-xs text-gray-500">周一、周三 8:00-9:40</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mb-3">微积分基础理论与应用</p>
+                                    <div class="mb-3">
+                                        <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                            <span>学生人数</span>
+                                            <span>45人</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="progress-bar bg-green-600 h-2 rounded-full" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                            管理课程
+                                        </button>
+                                        <button class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                                            <i data-lucide="more-horizontal" class="h-4 w-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="card bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                                            <i data-lucide="code" class="h-6 w-6 text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">程序设计</h3>
+                                            <p class="text-xs text-gray-500">周二、周四 10:00-11:40</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mb-3">C语言程序设计基础</p>
+                                    <div class="mb-3">
+                                        <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                            <span>学生人数</span>
+                                            <span>38人</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 76%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                            管理课程
+                                        </button>
+                                        <button class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                                            <i data-lucide="more-horizontal" class="h-4 w-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="card bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <div class="p-2 bg-purple-100 rounded-lg mr-3">
+                                            <i data-lucide="atom" class="h-6 w-6 text-purple-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">大学物理</h3>
+                                            <p class="text-xs text-gray-500">周五 14:00-15:40</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mb-3">力学与热学基础</p>
+                                    <div class="mb-3">
+                                        <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                            <span>学生人数</span>
+                                            <span>42人</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="progress-bar bg-purple-600 h-2 rounded-full" style="width: 84%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                            管理课程
+                                        </button>
+                                        <button class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                                            <i data-lucide="more-horizontal" class="h-4 w-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学生管理页面 -->
+                <div id="students-section" class="space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-900">学生管理</h2>
+                                <div class="flex space-x-4">
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option>全部课程</option>
+                                        <option>高等数学</option>
+                                        <option>程序设计</option>
+                                        <option>大学物理</option>
+                                    </select>
+                                    <div class="relative">
+                                        <input type="text" placeholder="搜索学生..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-64">
+                                        <i data-lucide="search" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生信息</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学号</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">课程</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">出勤率</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均成绩</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                        <span class="text-sm font-medium text-blue-600">张</span>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">张三</div>
+                                                        <div class="text-sm text-gray-500">计算机科学与技术</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2021001</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">高等数学</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <span class="text-sm text-gray-900 mr-2">95%</span>
+                                                    <div class="w-16 bg-gray-200 rounded-full h-2">
+                                                        <div class="bg-green-600 h-2 rounded-full" style="width: 95%"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">87.5</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-green-600 hover:text-green-900">查看详情</button>
+                                                    <button class="text-blue-600 hover:text-blue-900">发送消息</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                                        <span class="text-sm font-medium text-green-600">李</span>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-900">李四</div>
+                                                        <div class="text-sm text-gray-500">软件工程</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2021002</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">程序设计</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <span class="text-sm text-gray-900 mr-2">88%</span>
+                                                    <div class="w-16 bg-gray-200 rounded-full h-2">
+                                                        <div class="bg-green-600 h-2 rounded-full" style="width: 88%"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">92.0</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-green-600 hover:text-green-900">查看详情</button>
+                                                    <button class="text-blue-600 hover:text-blue-900">发送消息</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作业管理页面 -->
+                <div id="assignments-section" class="space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-900">作业管理</h2>
+                                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    发布新作业
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 border border-orange-200 bg-orange-50 rounded-lg">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">高等数学作业三</h3>
+                                        <p class="text-xs text-gray-500">发布时间：2024-01-15 · 截止时间：2024-01-20</p>
+                                        <p class="text-xs text-orange-600">已提交：45/45 · 待批改：45份</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded">待批改</span>
+                                        <button class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            开始批改
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">程序设计实验报告</h3>
+                                        <p class="text-xs text-gray-500">发布时间：2024-01-10 · 截止时间：2024-01-25</p>
+                                        <p class="text-xs text-gray-600">已提交：38/38 · 已批改：15份</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">批改中</span>
+                                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            继续批改
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">大学物理实验</h3>
+                                        <p class="text-xs text-gray-500">发布时间：2024-01-12 · 截止时间：2024-01-30</p>
+                                        <p class="text-xs text-gray-600">已提交：0/42 · 待批改：0份</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">进行中</span>
+                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                            查看详情
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成绩管理页面 -->
+                <div id="grades-section" class="space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-900">成绩管理</h2>
+                                <div class="flex space-x-4">
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option>全部课程</option>
+                                        <option>高等数学</option>
+                                        <option>程序设计</option>
+                                        <option>大学物理</option>
+                                    </select>
+                                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        导出成绩
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">课程</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平时成绩</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期中成绩</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期末成绩</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总评成绩</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">张三</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">高等数学</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">88</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">85</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">90</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">87.5</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <button class="text-green-600 hover:text-green-900">编辑成绩</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">李四</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">程序设计</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">92</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">88</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">-</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">-</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <button class="text-green-600 hover:text-green-900">编辑成绩</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 资料管理页面 -->
+                <div id="materials-section" class="space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-900">资料管理</h2>
+                                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    上传资料
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div class="card bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <div class="p-2 bg-red-100 rounded-lg mr-3">
+                                            <i data-lucide="file-text" class="h-6 w-6 text-red-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">微积分讲义</h3>
+                                            <p class="text-xs text-gray-500">PDF · 2.3MB</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mb-3">高等数学微积分部分详细讲义</p>
+                                    <div class="flex space-x-2">
+                                        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                            编辑
+                                        </button>
+                                        <button class="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                            删除
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="card bg-white border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                                            <i data-lucide="video" class="h-6 w-6 text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900">C语言教程</h3>
+                                            <p class="text-xs text-gray-500">视频 · 45分钟</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mb-3">C语言基础语法讲解视频</p>
+                                    <div class="flex space-x-2">
+                                        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                            编辑
+                                        </button>
+                                        <button class="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition-colors">
+                                            删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 答疑解惑页面 -->
+                <div id="qa-section" class="space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-900">答疑解惑</h2>
+                                <div class="flex space-x-4">
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option>全部问题</option>
+                                        <option>待回答</option>
+                                        <option>已回答</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <h3 class="text-sm font-medium text-gray-900">微积分中的极限问题</h3>
+                                            <p class="text-xs text-gray-600 mt-1">请问如何理解极限的ε-δ定义？</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-xs text-gray-500">提问者：李同学</span>
+                                                <span class="text-xs text-gray-500">2小时前</span>
+                                                <span class="text-xs text-green-600">数学</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded">待回答</span>
+                                            <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                                回答问题
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <h3 class="text-sm font-medium text-gray-900">C语言指针问题</h3>
+                                            <p class="text-xs text-gray-600 mt-1">指针和数组的关系是什么？</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-xs text-gray-500">提问者：王同学</span>
+                                                <span class="text-xs text-gray-500">1天前</span>
+                                                <span class="text-xs text-blue-600">计算机</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">已回答</span>
+                                            <button class="text-green-600 hover:text-green-700 text-sm">查看回答</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 加载当前用户信息
+        function loadCurrentUser() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                const userInitial = document.getElementById('user-initial');
+                const userName = document.getElementById('user-name');
+                
+                if (userInitial && userName) {
+                    userInitial.textContent = user.realName ? user.realName.charAt(0) : user.username.charAt(0);
+                    userName.textContent = user.realName ? user.realName + '老师' : user.username + '老师';
+                }
+            }
+        }
+
+        // 页面加载时初始化用户信息
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+        });
+
+        // 显示指定部分
+        function showSection(sectionName) {
+            // 隐藏所有部分
+            document.getElementById('overview-section').classList.add('hidden');
+            document.getElementById('courses-section').classList.add('hidden');
+            document.getElementById('students-section').classList.add('hidden');
+            document.getElementById('assignments-section').classList.add('hidden');
+            document.getElementById('grades-section').classList.add('hidden');
+            document.getElementById('materials-section').classList.add('hidden');
+            document.getElementById('qa-section').classList.add('hidden');
+            
+            // 显示选中的部分
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            // 更新侧边栏状态
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active', 'text-green-700');
+                item.classList.add('text-gray-600');
+            });
+            
+            // 激活当前选中的侧边栏项
+            const activeItem = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            if (activeItem) {
+                activeItem.classList.add('active', 'text-green-700');
+                activeItem.classList.remove('text-gray-600');
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 默认显示教学概览
+            showSection('overview');
+        });
+    </script>
+</body>
+</html> 

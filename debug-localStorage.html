@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>localStorage 调试工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .data-item { 
+            background: #f8f9fa; 
+            border: 1px solid #e9ecef; 
+            border-radius: 8px; 
+            padding: 12px; 
+            margin: 8px 0; 
+        }
+        .data-key { 
+            font-weight: bold; 
+            color: #495057; 
+            margin-bottom: 8px; 
+        }
+        .data-value { 
+            background: white; 
+            border: 1px solid #dee2e6; 
+            border-radius: 4px; 
+            padding: 8px; 
+            font-family: monospace; 
+            font-size: 12px; 
+            white-space: pre-wrap; 
+            max-height: 200px; 
+            overflow-y: auto; 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">localStorage 调试工具</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 用户数据 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">用户数据 (admin_users)</h2>
+                <div id="users-debug" class="space-y-4">
+                    <div class="data-item">
+                        <div class="data-key">数据状态</div>
+                        <div class="data-value" id="users-status">检查中...</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-key">原始数据</div>
+                        <div class="data-value" id="users-raw">加载中...</div>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <button onclick="clearUsers()" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
+                        清除用户数据
+                    </button>
+                    <button onclick="addTestUser()" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                        添加测试用户
+                    </button>
+                    <button onclick="refreshUsers()" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">
+                        刷新显示
+                    </button>
+                </div>
+            </div>
+
+            <!-- 课程数据 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">课程数据 (admin_courses)</h2>
+                <div id="courses-debug" class="space-y-4">
+                    <div class="data-item">
+                        <div class="data-key">数据状态</div>
+                        <div class="data-value" id="courses-status">检查中...</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-key">原始数据</div>
+                        <div class="data-value" id="courses-raw">加载中...</div>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <button onclick="clearCourses()" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
+                        清除课程数据
+                    </button>
+                    <button onclick="addTestCourse()" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm">
+                        添加测试课程
+                    </button>
+                    <button onclick="refreshCourses()" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">
+                        刷新显示
+                    </button>
+                </div>
+            </div>
+
+            <!-- 资料数据 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">资料数据 (admin_materials)</h2>
+                <div id="materials-debug" class="space-y-4">
+                    <div class="data-item">
+                        <div class="data-key">数据状态</div>
+                        <div class="data-value" id="materials-status">检查中...</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-key">原始数据</div>
+                        <div class="data-value" id="materials-raw">加载中...</div>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <button onclick="clearMaterials()" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
+                        清除资料数据
+                    </button>
+                    <button onclick="addTestMaterial()" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm">
+                        添加测试资料
+                    </button>
+                    <button onclick="refreshMaterials()" class="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">
+                        刷新显示
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全局操作 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">全局操作</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button onclick="clearAll()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
+                    清除所有数据
+                </button>
+                <button onclick="refreshAll()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                    刷新所有显示
+                </button>
+                <button onclick="exportData()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm">
+                    导出所有数据
+                </button>
+                <button onclick="importData()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm">
+                    导入数据
+                </button>
+            </div>
+        </div>
+
+        <!-- 导航链接 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">快速导航</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <a href="admin-users.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center text-sm">
+                    用户管理
+                </a>
+                <a href="admin-courses.html" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-center text-sm">
+                    课程管理
+                </a>
+                <a href="admin-materials.html" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-center text-sm">
+                    资料管理
+                </a>
+                <a href="test-data-persistence.html" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-center text-sm">
+                    数据测试
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查并显示用户数据
+        function checkUsers() {
+            const usersData = localStorage.getItem('admin_users');
+            const statusEl = document.getElementById('users-status');
+            const rawEl = document.getElementById('users-raw');
+            
+            if (usersData) {
+                try {
+                    const users = JSON.parse(usersData);
+                    statusEl.textContent = `✅ 数据存在 (${users.length} 条记录)`;
+                    rawEl.textContent = JSON.stringify(users, null, 2);
+                } catch (e) {
+                    statusEl.textContent = '❌ 数据格式错误';
+                    rawEl.textContent = usersData;
+                }
+            } else {
+                statusEl.textContent = '❌ 数据不存在';
+                rawEl.textContent = 'null';
+            }
+        }
+
+        // 检查并显示课程数据
+        function checkCourses() {
+            const coursesData = localStorage.getItem('admin_courses');
+            const statusEl = document.getElementById('courses-status');
+            const rawEl = document.getElementById('courses-raw');
+            
+            if (coursesData) {
+                try {
+                    const courses = JSON.parse(coursesData);
+                    statusEl.textContent = `✅ 数据存在 (${courses.length} 条记录)`;
+                    rawEl.textContent = JSON.stringify(courses, null, 2);
+                } catch (e) {
+                    statusEl.textContent = '❌ 数据格式错误';
+                    rawEl.textContent = coursesData;
+                }
+            } else {
+                statusEl.textContent = '❌ 数据不存在';
+                rawEl.textContent = 'null';
+            }
+        }
+
+        // 检查并显示资料数据
+        function checkMaterials() {
+            const materialsData = localStorage.getItem('admin_materials');
+            const statusEl = document.getElementById('materials-status');
+            const rawEl = document.getElementById('materials-raw');
+            
+            if (materialsData) {
+                try {
+                    const materials = JSON.parse(materialsData);
+                    statusEl.textContent = `✅ 数据存在 (${materials.length} 条记录)`;
+                    rawEl.textContent = JSON.stringify(materials, null, 2);
+                } catch (e) {
+                    statusEl.textContent = '❌ 数据格式错误';
+                    rawEl.textContent = materialsData;
+                }
+            } else {
+                statusEl.textContent = '❌ 数据不存在';
+                rawEl.textContent = 'null';
+            }
+        }
+
+        // 清除用户数据
+        function clearUsers() {
+            if (confirm('确定要清除所有用户数据吗？')) {
+                localStorage.removeItem('admin_users');
+                checkUsers();
+                alert('用户数据已清除！');
+            }
+        }
+
+        // 清除课程数据
+        function clearCourses() {
+            if (confirm('确定要清除所有课程数据吗？')) {
+                localStorage.removeItem('admin_courses');
+                checkCourses();
+                alert('课程数据已清除！');
+            }
+        }
+
+        // 清除资料数据
+        function clearMaterials() {
+            if (confirm('确定要清除所有资料数据吗？')) {
+                localStorage.removeItem('admin_materials');
+                checkMaterials();
+                alert('资料数据已清除！');
+            }
+        }
+
+        // 添加测试用户
+        function addTestUser() {
+            const users = JSON.parse(localStorage.getItem('admin_users') || '[]');
+            const newUser = {
+                id: Math.max(...users.map(u => u.id), 0) + 1,
+                username: 'debuguser' + (users.length + 1),
+                realName: '调试用户' + (users.length + 1),
+                email: 'debug' + (users.length + 1) + '@example.com',
+                phone: '1390013900' + (users.length + 1),
+                role: 'student',
+                status: 'active',
+                registerTime: new Date().toISOString().split('T')[0],
+                lastLogin: '从未登录'
+            };
+            users.push(newUser);
+            localStorage.setItem('admin_users', JSON.stringify(users));
+            checkUsers();
+            alert('测试用户添加成功！');
+        }
+
+        // 添加测试课程
+        function addTestCourse() {
+            const courses = JSON.parse(localStorage.getItem('admin_courses') || '[]');
+            const newCourse = {
+                id: Math.max(...courses.map(c => c.id), 0) + 1,
+                name: '调试课程' + (courses.length + 1),
+                code: 'DEBUG' + (courses.length + 1),
+                teacher: '调试教师',
+                teacherId: 'teacher_debug',
+                status: 'active',
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                description: '这是一个调试课程',
+                studentCount: 0,
+                coverImage: 'https://via.placeholder.com/300x200/6B7280/FFFFFF?text=调试课程'
+            };
+            courses.push(newCourse);
+            localStorage.setItem('admin_courses', JSON.stringify(courses));
+            checkCourses();
+            alert('测试课程添加成功！');
+        }
+
+        // 添加测试资料
+        function addTestMaterial() {
+            const materials = JSON.parse(localStorage.getItem('admin_materials') || '[]');
+            const newMaterial = {
+                id: Math.max(...materials.map(m => m.id), 0) + 1,
+                name: '调试资料' + (materials.length + 1),
+                type: 'document',
+                size: '1.0MB',
+                uploadTime: new Date().toISOString().split('T')[0],
+                uploader: '调试用户',
+                course: 'DEBUG101',
+                accessLevel: 'public',
+                description: '这是一个调试资料',
+                icon: 'file-text',
+                color: 'text-blue-600'
+            };
+            materials.push(newMaterial);
+            localStorage.setItem('admin_materials', JSON.stringify(materials));
+            checkMaterials();
+            alert('测试资料添加成功！');
+        }
+
+        // 刷新显示
+        function refreshUsers() { checkUsers(); }
+        function refreshCourses() { checkCourses(); }
+        function refreshMaterials() { checkMaterials(); }
+        function refreshAll() {
+            checkUsers();
+            checkCourses();
+            checkMaterials();
+        }
+
+        // 清除所有数据
+        function clearAll() {
+            if (confirm('确定要清除所有数据吗？此操作不可恢复！')) {
+                localStorage.removeItem('admin_users');
+                localStorage.removeItem('admin_courses');
+                localStorage.removeItem('admin_materials');
+                refreshAll();
+                alert('所有数据已清除！');
+            }
+        }
+
+        // 导出数据
+        function exportData() {
+            const data = {
+                users: JSON.parse(localStorage.getItem('admin_users') || '[]'),
+                courses: JSON.parse(localStorage.getItem('admin_courses') || '[]'),
+                materials: JSON.parse(localStorage.getItem('admin_materials') || '[]'),
+                exportTime: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'education-platform-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 导入数据
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if (data.users) localStorage.setItem('admin_users', JSON.stringify(data.users));
+                            if (data.courses) localStorage.setItem('admin_courses', JSON.stringify(data.courses));
+                            if (data.materials) localStorage.setItem('admin_materials', JSON.stringify(data.materials));
+                            refreshAll();
+                            alert('数据导入成功！');
+                        } catch (error) {
+                            alert('数据导入失败：' + error.message);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // 页面加载时检查数据
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUsers();
+            checkCourses();
+            checkMaterials();
+        });
+    </script>
+</body>
+</html> 

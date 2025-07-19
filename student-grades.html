@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 成绩查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-item.active { background-color: rgba(59, 130, 246, 0.2); border-right: 3px solid #3b82f6; }
+        .grade-card { transition: all 0.2s ease; }
+        .grade-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .progress-ring { transform: rotate(-90deg); }
+        .progress-ring-circle { transition: stroke-dasharray 0.35s; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-blue-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 学生中心</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="bell" class="h-5 w-5 text-gray-400"></i>
+                        <span class="text-sm text-gray-700">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-blue-600">张</span>
+                        </div>
+                        <span class="text-sm text-gray-700">张三同学</span>
+                    </div>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        学习概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#courses'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        我的课程
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#materials'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        学习资料
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-assignment.html'">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 mr-3"></i>
+                        作业管理
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-blue-700 rounded-lg cursor-pointer">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        成绩查询
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#schedule'">
+                        <i data-lucide="calendar" class="h-5 w-5 mr-3"></i>
+                        课程表
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#qa'">
+                        <i data-lucide="help-circle" class="h-5 w-5 mr-3"></i>
+                        问答中心
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">成绩查询</h1>
+                    <p class="text-gray-600">查看各科目成绩和学习进度</p>
+                </div>
+
+                <!-- 成绩概览 -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">平均分</p>
+                                <p class="text-2xl font-bold text-gray-900">85.6</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="trending-up" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-sm text-green-600">+2.3%</span>
+                            <span class="text-sm text-gray-500">较上学期</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">总学分</p>
+                                <p class="text-2xl font-bold text-gray-900">24</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="award" class="h-6 w-6 text-green-600"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-sm text-green-600">已完成</span>
+                            <span class="text-sm text-gray-500">本学期</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">班级排名</p>
+                                <p class="text-2xl font-bold text-gray-900">12</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="users" class="h-6 w-6 text-purple-600"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-sm text-green-600">前25%</span>
+                            <span class="text-sm text-gray-500">共48人</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">GPA</p>
+                                <p class="text-2xl font-bold text-gray-900">3.6</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="star" class="h-6 w-6 text-orange-600"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-sm text-green-600">优秀</span>
+                            <span class="text-sm text-gray-500">等级</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成绩趋势图 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-8">
+                    <div class="p-6 border-b">
+                        <h2 class="text-xl font-semibold text-gray-900">成绩趋势</h2>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="gradeChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- 课程成绩 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-8">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold text-gray-900">课程成绩</h2>
+                            <div class="flex space-x-2">
+                                <select id="semester-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="current">本学期</option>
+                                    <option value="last">上学期</option>
+                                    <option value="all">全部学期</option>
+                                </select>
+                                <button onclick="exportGrades()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    <i data-lucide="download" class="h-4 w-4 inline mr-2"></i>
+                                    导出成绩单
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">课程名称</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学分</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平时成绩</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">期末成绩</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总评成绩</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">等级</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排名</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="grades-table">
+                                    <!-- 成绩数据将通过JavaScript动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成绩分析 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 成绩分布 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h2 class="text-xl font-semibold text-gray-900">成绩分布</h2>
+                        </div>
+                        <div class="p-6">
+                            <canvas id="distributionChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 学习建议 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h2 class="text-xl font-semibold text-gray-900">学习建议</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="lightbulb" class="h-4 w-4 text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">数学类课程</h3>
+                                        <p class="text-sm text-gray-600 mt-1">建议加强微积分和线性代数的练习，多做习题巩固基础概念。</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="target" class="h-4 w-4 text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">编程类课程</h3>
+                                        <p class="text-sm text-gray-600 mt-1">编程基础扎实，建议深入学习算法和数据结构，提升代码质量。</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="book-open" class="h-4 w-4 text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">英语类课程</h3>
+                                        <p class="text-sm text-gray-600 mt-1">英语基础良好，建议多阅读英文文献，提升专业英语水平。</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="trending-up" class="h-4 w-4 text-orange-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">总体建议</h3>
+                                        <p class="text-sm text-gray-600 mt-1">保持当前学习状态，合理安排时间，注重理论与实践相结合。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成绩详情模态框 -->
+    <div id="grade-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="bg-blue-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">成绩详情</h3>
+            </div>
+            <div class="p-6">
+                <div id="grade-detail-content">
+                    <!-- 成绩详情内容将通过JavaScript动态生成 -->
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="button" onclick="closeGradeDetail()" class="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 模拟成绩数据
+        let gradesData = [
+            {
+                id: 1,
+                courseName: '高等数学',
+                courseCode: 'MATH101',
+                credits: 4,
+                regularScore: 88,
+                finalScore: 85,
+                totalScore: 86,
+                grade: 'B+',
+                rank: 15,
+                totalStudents: 48,
+                semester: '2024-1',
+                teacher: '李老师',
+                details: {
+                    assignments: [
+                        { name: '作业一', score: 90, weight: 0.1 },
+                        { name: '作业二', score: 85, weight: 0.1 },
+                        { name: '作业三', score: 88, weight: 0.1 },
+                        { name: '期中考试', score: 82, weight: 0.3 },
+                        { name: '期末考试', score: 85, weight: 0.4 }
+                    ],
+                    feedback: '数学基础扎实，解题思路清晰，建议在积分计算方面多加练习。'
+                }
+            },
+            {
+                id: 2,
+                courseName: '程序设计基础',
+                courseCode: 'CS101',
+                credits: 3,
+                regularScore: 92,
+                finalScore: 90,
+                totalScore: 91,
+                grade: 'A-',
+                rank: 8,
+                totalStudents: 45,
+                semester: '2024-1',
+                teacher: '王老师',
+                details: {
+                    assignments: [
+                        { name: '实验一', score: 95, weight: 0.15 },
+                        { name: '实验二', score: 90, weight: 0.15 },
+                        { name: '实验三', score: 88, weight: 0.15 },
+                        { name: '项目作业', score: 92, weight: 0.25 },
+                        { name: '期末考试', score: 90, weight: 0.3 }
+                    ],
+                    feedback: '编程能力突出，代码规范，建议深入学习算法和数据结构。'
+                }
+            },
+            {
+                id: 3,
+                courseName: '大学英语',
+                courseCode: 'ENG101',
+                credits: 2,
+                regularScore: 85,
+                finalScore: 88,
+                totalScore: 87,
+                grade: 'B+',
+                rank: 12,
+                totalStudents: 50,
+                semester: '2024-1',
+                teacher: '张老师',
+                details: {
+                    assignments: [
+                        { name: '口语测试', score: 85, weight: 0.2 },
+                        { name: '听力测试', score: 90, weight: 0.2 },
+                        { name: '阅读理解', score: 88, weight: 0.2 },
+                        { name: '写作作业', score: 85, weight: 0.2 },
+                        { name: '期末考试', score: 88, weight: 0.2 }
+                    ],
+                    feedback: '英语基础良好，听说读写能力均衡，建议多阅读英文文献。'
+                }
+            },
+            {
+                id: 4,
+                courseName: '线性代数',
+                courseCode: 'MATH102',
+                credits: 3,
+                regularScore: 80,
+                finalScore: 82,
+                totalScore: 81,
+                grade: 'B',
+                rank: 20,
+                totalStudents: 48,
+                semester: '2024-1',
+                teacher: '陈老师',
+                details: {
+                    assignments: [
+                        { name: '作业一', score: 85, weight: 0.1 },
+                        { name: '作业二', score: 78, weight: 0.1 },
+                        { name: '作业三', score: 82, weight: 0.1 },
+                        { name: '期中考试', score: 80, weight: 0.3 },
+                        { name: '期末考试', score: 82, weight: 0.4 }
+                    ],
+                    feedback: '概念理解基本正确，但在矩阵运算方面需要加强练习。'
+                }
+            }
+        ];
+
+        // 渲染成绩表格
+        function renderGradesTable() {
+            const tableBody = document.getElementById('grades-table');
+            
+            tableBody.innerHTML = gradesData.map(grade => `
+                <tr class="grade-card hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${grade.courseName}</div>
+                            <div class="text-sm text-gray-500">${grade.courseCode}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${grade.credits}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${grade.regularScore}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${grade.finalScore}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm font-medium ${getScoreColor(grade.totalScore)}">${grade.totalScore}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getGradeColor(grade.grade)}">
+                            ${grade.grade}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${grade.rank}/${grade.totalStudents}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="showGradeDetail(${grade.id})" class="text-blue-600 hover:text-blue-900">
+                            查看详情
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 获取成绩颜色
+        function getScoreColor(score) {
+            if (score >= 90) return 'text-green-600';
+            if (score >= 80) return 'text-blue-600';
+            if (score >= 70) return 'text-yellow-600';
+            return 'text-red-600';
+        }
+
+        // 获取等级颜色
+        function getGradeColor(grade) {
+            if (grade.startsWith('A')) return 'bg-green-100 text-green-800';
+            if (grade.startsWith('B')) return 'bg-blue-100 text-blue-800';
+            if (grade.startsWith('C')) return 'bg-yellow-100 text-yellow-800';
+            return 'bg-red-100 text-red-800';
+        }
+
+        // 显示成绩详情
+        function showGradeDetail(gradeId) {
+            const grade = gradesData.find(g => g.id === gradeId);
+            if (!grade) return;
+
+            const detailContent = document.getElementById('grade-detail-content');
+            detailContent.innerHTML = `
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">${grade.courseName} (${grade.courseCode})</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-500">教师：</span>
+                            <span class="font-medium">${grade.teacher}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">学分：</span>
+                            <span class="font-medium">${grade.credits}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">学期：</span>
+                            <span class="font-medium">${grade.semester}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">排名：</span>
+                            <span class="font-medium">${grade.rank}/${grade.totalStudents}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">成绩构成</h4>
+                    <div class="space-y-3">
+                        ${grade.details.assignments.map(assignment => `
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-sm text-gray-700">${assignment.name}</span>
+                                    <span class="text-xs text-gray-500">(${(assignment.weight * 100).toFixed(0)}%)</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: ${assignment.score}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">${assignment.score}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <span class="text-sm font-medium text-blue-700">总评成绩</span>
+                            <span class="text-lg font-bold text-blue-700">${grade.totalScore}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-3">教师评语</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-gray-700">${grade.details.feedback}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('grade-detail-modal').style.display = 'block';
+        }
+
+        // 关闭成绩详情
+        function closeGradeDetail() {
+            document.getElementById('grade-detail-modal').style.display = 'none';
+        }
+
+        // 导出成绩单
+        function exportGrades() {
+            const csvContent = [
+                ['课程名称', '课程代码', '学分', '平时成绩', '期末成绩', '总评成绩', '等级', '排名'].join(','),
+                ...gradesData.map(grade => [
+                    grade.courseName,
+                    grade.courseCode,
+                    grade.credits,
+                    grade.regularScore,
+                    grade.finalScore,
+                    grade.totalScore,
+                    grade.grade,
+                    `${grade.rank}/${grade.totalStudents}`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '成绩单.csv';
+            link.click();
+        }
+
+        // 初始化图表
+        function initCharts() {
+            // 成绩趋势图
+            const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+            new Chart(gradeCtx, {
+                type: 'line',
+                data: {
+                    labels: ['第1周', '第2周', '第3周', '第4周', '第5周', '第6周', '第7周', '第8周'],
+                    datasets: [{
+                        label: '平均分',
+                        data: [82, 84, 83, 86, 85, 87, 86, 85.6],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 70,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // 成绩分布图
+            const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+            new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['优秀 (90-100)', '良好 (80-89)', '中等 (70-79)', '及格 (60-69)', '不及格 (0-59)'],
+                    datasets: [{
+                        data: [1, 2, 1, 0, 0],
+                        backgroundColor: [
+                            '#10b981',
+                            '#3b82f6',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#6b7280'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 学期筛选
+            document.getElementById('semester-filter').addEventListener('change', function() {
+                // 这里可以根据选择的学期筛选成绩数据
+                console.log('选择学期:', this.value);
+            });
+
+            // 点击模态框外部关闭
+            document.getElementById('grade-detail-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('grade-detail-modal')) {
+                    closeGradeDetail();
+                }
+            });
+
+            // 初始化
+            renderGradesTable();
+            initCharts();
+        });
+    </script>
+</body>
+</html> 

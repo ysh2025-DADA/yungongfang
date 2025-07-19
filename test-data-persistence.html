@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据持久化测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">数据持久化测试</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 用户数据测试 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">用户数据</h2>
+                <div id="users-data" class="text-sm text-gray-600 mb-4">
+                    加载中...
+                </div>
+                <div class="space-y-2">
+                    <button onclick="clearUsers()" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
+                        清除用户数据
+                    </button>
+                    <button onclick="addTestUser()" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                        添加测试用户
+                    </button>
+                </div>
+            </div>
+
+            <!-- 课程数据测试 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">课程数据</h2>
+                <div id="courses-data" class="text-sm text-gray-600 mb-4">
+                    加载中...
+                </div>
+                <div class="space-y-2">
+                    <button onclick="clearCourses()" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
+                        清除课程数据
+                    </button>
+                    <button onclick="addTestCourse()" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm">
+                        添加测试课程
+                    </button>
+                </div>
+            </div>
+
+            <!-- 资料数据测试 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">资料数据</h2>
+                <div id="materials-data" class="text-sm text-gray-600 mb-4">
+                    加载中...
+                </div>
+                <div class="space-y-2">
+                    <button onclick="clearMaterials()" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">
+                        清除资料数据
+                    </button>
+                    <button onclick="addTestMaterial()" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm">
+                        添加测试资料
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作说明 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">测试说明</h2>
+            <div class="text-sm text-gray-600 space-y-2">
+                <p>1. 点击"添加测试数据"按钮添加测试数据</p>
+                <p>2. 刷新页面验证数据是否保持</p>
+                <p>3. 点击"清除数据"按钮清除对应数据</p>
+                <p>4. 刷新页面验证数据是否被清除</p>
+                <p>5. 重新访问管理页面，数据应该会重新初始化</p>
+            </div>
+        </div>
+
+        <!-- 导航链接 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">管理页面链接</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="admin-users.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-center text-sm">
+                    用户管理
+                </a>
+                <a href="admin-courses.html" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-center text-sm">
+                    课程管理
+                </a>
+                <a href="admin-materials.html" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-center text-sm">
+                    资料管理
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 加载并显示数据
+        function loadAndDisplayData() {
+            // 用户数据
+            const users = JSON.parse(localStorage.getItem('admin_users') || '[]');
+            document.getElementById('users-data').innerHTML = `
+                <p>用户数量: ${users.length}</p>
+                <p>最新用户: ${users.length > 0 ? users[users.length - 1].realName : '无'}</p>
+            `;
+
+            // 课程数据
+            const courses = JSON.parse(localStorage.getItem('admin_courses') || '[]');
+            document.getElementById('courses-data').innerHTML = `
+                <p>课程数量: ${courses.length}</p>
+                <p>最新课程: ${courses.length > 0 ? courses[courses.length - 1].name : '无'}</p>
+            `;
+
+            // 资料数据
+            const materials = JSON.parse(localStorage.getItem('admin_materials') || '[]');
+            document.getElementById('materials-data').innerHTML = `
+                <p>资料数量: ${materials.length}</p>
+                <p>最新资料: ${materials.length > 0 ? materials[materials.length - 1].name : '无'}</p>
+            `;
+        }
+
+        // 清除用户数据
+        function clearUsers() {
+            if (confirm('确定要清除所有用户数据吗？')) {
+                localStorage.removeItem('admin_users');
+                loadAndDisplayData();
+                alert('用户数据已清除！');
+            }
+        }
+
+        // 清除课程数据
+        function clearCourses() {
+            if (confirm('确定要清除所有课程数据吗？')) {
+                localStorage.removeItem('admin_courses');
+                loadAndDisplayData();
+                alert('课程数据已清除！');
+            }
+        }
+
+        // 清除资料数据
+        function clearMaterials() {
+            if (confirm('确定要清除所有资料数据吗？')) {
+                localStorage.removeItem('admin_materials');
+                loadAndDisplayData();
+                alert('资料数据已清除！');
+            }
+        }
+
+        // 添加测试用户
+        function addTestUser() {
+            const users = JSON.parse(localStorage.getItem('admin_users') || '[]');
+            const newUser = {
+                id: Math.max(...users.map(u => u.id), 0) + 1,
+                username: 'testuser' + (users.length + 1),
+                realName: '测试用户' + (users.length + 1),
+                email: 'test' + (users.length + 1) + '@example.com',
+                phone: '1380013800' + (users.length + 1),
+                role: 'student',
+                status: 'active',
+                registerTime: new Date().toISOString().split('T')[0],
+                lastLogin: '从未登录'
+            };
+            users.push(newUser);
+            localStorage.setItem('admin_users', JSON.stringify(users));
+            loadAndDisplayData();
+            alert('测试用户添加成功！');
+        }
+
+        // 添加测试课程
+        function addTestCourse() {
+            const courses = JSON.parse(localStorage.getItem('admin_courses') || '[]');
+            const newCourse = {
+                id: Math.max(...courses.map(c => c.id), 0) + 1,
+                name: '测试课程' + (courses.length + 1),
+                code: 'TEST' + (courses.length + 1),
+                teacher: '测试教师',
+                teacherId: 'teacher_test',
+                status: 'active',
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                description: '这是一个测试课程',
+                studentCount: 0,
+                coverImage: 'https://via.placeholder.com/300x200/6B7280/FFFFFF?text=测试课程'
+            };
+            courses.push(newCourse);
+            localStorage.setItem('admin_courses', JSON.stringify(courses));
+            loadAndDisplayData();
+            alert('测试课程添加成功！');
+        }
+
+        // 添加测试资料
+        function addTestMaterial() {
+            const materials = JSON.parse(localStorage.getItem('admin_materials') || '[]');
+            const newMaterial = {
+                id: Math.max(...materials.map(m => m.id), 0) + 1,
+                name: '测试资料' + (materials.length + 1),
+                type: 'document',
+                size: '1.0MB',
+                uploadTime: new Date().toISOString().split('T')[0],
+                uploader: '测试用户',
+                course: 'TEST101',
+                accessLevel: 'public',
+                description: '这是一个测试资料',
+                icon: 'file-text',
+                color: 'text-blue-600'
+            };
+            materials.push(newMaterial);
+            localStorage.setItem('admin_materials', JSON.stringify(materials));
+            loadAndDisplayData();
+            alert('测试资料添加成功！');
+        }
+
+        // 页面加载时显示数据
+        document.addEventListener('DOMContentLoaded', loadAndDisplayData);
+    </script>
+</body>
+</html> 

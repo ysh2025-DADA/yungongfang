@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 作业提交</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-item.active { background-color: rgba(59, 130, 246, 0.2); border-right: 3px solid #3b82f6; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 0; border-radius: 8px; width: 90%; max-width: 600px; animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .file-upload-area { border: 2px dashed #d1d5db; border-radius: 8px; padding: 2rem; text-align: center; transition: all 0.3s ease; }
+        .file-upload-area.dragover { border-color: #3b82f6; background-color: #eff6ff; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="graduation-cap" class="h-8 w-8 text-blue-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 学生中心</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="bell" class="h-5 w-5 text-gray-400"></i>
+                        <span class="text-sm text-gray-700">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-blue-600">张</span>
+                        </div>
+                        <span class="text-sm text-gray-700">张三同学</span>
+                    </div>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        学习概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#courses'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        我的课程
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#materials'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        学习资料
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-blue-700 rounded-lg cursor-pointer">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 mr-3"></i>
+                        作业管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#grades'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        成绩查询
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#schedule'">
+                        <i data-lucide="calendar" class="h-5 w-5 mr-3"></i>
+                        课程表
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-blue-700" onclick="window.location.href='student-dashboard.html#qa'">
+                        <i data-lucide="help-circle" class="h-5 w-5 mr-3"></i>
+                        问答中心
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">作业提交</h1>
+                    <p class="text-gray-600">提交作业并查看成绩反馈</p>
+                </div>
+
+                <!-- 作业详情 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-6">
+                    <div class="p-6 border-b">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">作业详情</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">高等数学作业三</h3>
+                                <p class="text-gray-600 mb-4">微积分基础练习，包含极限、导数、积分等知识点</p>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <div class="flex justify-between">
+                                        <span>课程：</span>
+                                        <span class="font-medium">高等数学</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>教师：</span>
+                                        <span class="font-medium">李老师</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>发布时间：</span>
+                                        <span class="font-medium">2024-01-15</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>截止时间：</span>
+                                        <span class="font-medium text-red-600">2024-01-20 23:59</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>剩余时间：</span>
+                                        <span class="font-medium text-orange-600" id="time-remaining">计算中...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900 mb-2">作业要求</h4>
+                                <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                                    <p class="mb-2">1. 完成教材第三章习题1-10</p>
+                                    <p class="mb-2">2. 提交PDF格式的解答过程</p>
+                                    <p class="mb-2">3. 确保字迹清晰，步骤完整</p>
+                                    <p class="mb-2">4. 独立完成，不得抄袭</p>
+                                    <p>5. 按时提交，逾期不予受理</p>
+                                </div>
+                                <div class="mt-4">
+                                    <h4 class="text-sm font-medium text-gray-900 mb-2">附件下载</h4>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors">
+                                        <i data-lucide="download" class="h-4 w-4 inline mr-2"></i>
+                                        下载作业要求
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 提交状态 -->
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">提交状态</h3>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                进行中
+                            </span>
+                        </div>
+                        
+                        <div id="submission-status" class="space-y-4">
+                            <!-- 未提交状态 -->
+                            <div id="not-submitted" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div class="flex items-center">
+                                    <i data-lucide="clock" class="h-5 w-5 text-yellow-600 mr-3"></i>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-yellow-800">作业未提交</h4>
+                                        <p class="text-sm text-yellow-700">请在上传区域选择文件并提交作业</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 已提交状态（隐藏） -->
+                            <div id="submitted" class="bg-green-50 border border-green-200 rounded-lg p-4 hidden">
+                                <div class="flex items-center">
+                                    <i data-lucide="check-circle" class="h-5 w-5 text-green-600 mr-3"></i>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-green-800">作业已提交</h4>
+                                        <p class="text-sm text-green-700">提交时间：<span id="submit-time">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 已批改状态（隐藏） -->
+                            <div id="graded" class="bg-blue-50 border border-blue-200 rounded-lg p-4 hidden">
+                                <div class="flex items-center">
+                                    <i data-lucide="star" class="h-5 w-5 text-blue-600 mr-3"></i>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-blue-800">作业已批改</h4>
+                                        <p class="text-sm text-blue-700">成绩：<span id="grade-score">-</span> | 批改时间：<span id="grade-time">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作业提交 -->
+                <div class="bg-white rounded-lg shadow-sm border mb-6">
+                    <div class="p-6 border-b">
+                        <h2 class="text-xl font-semibold text-gray-900">提交作业</h2>
+                    </div>
+                    <div class="p-6">
+                        <form id="assignment-form">
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">作业文件</label>
+                                <div id="file-upload-area" class="file-upload-area">
+                                    <i data-lucide="upload" class="h-12 w-12 text-gray-400 mx-auto mb-4"></i>
+                                    <p class="text-sm text-gray-600 mb-2">拖拽文件到此处或点击选择文件</p>
+                                    <p class="text-xs text-gray-500">支持 PDF、DOC、DOCX、JPG、PNG 格式，最大 10MB</p>
+                                    <input type="file" id="file-input" class="hidden" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+                                    <button type="button" id="select-file-btn" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors">
+                                        选择文件
+                                    </button>
+                                </div>
+                                <div id="file-list" class="mt-4 space-y-2"></div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
+                                <textarea id="assignment-notes" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="如有特殊说明或问题，请在此处备注..."></textarea>
+                            </div>
+
+                            <div class="flex justify-end space-x-4">
+                                <button type="button" onclick="window.location.href='student-dashboard.html'" class="px-6 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                    返回
+                                </button>
+                                <button type="submit" id="submit-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                                    提交作业
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 成绩反馈 -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h2 class="text-xl font-semibold text-gray-900">成绩反馈</h2>
+                    </div>
+                    <div class="p-6">
+                        <div id="feedback-content" class="text-center text-gray-500 py-8">
+                            <i data-lucide="file-text" class="h-12 w-12 text-gray-300 mx-auto mb-4"></i>
+                            <p>作业尚未批改，请耐心等待</p>
+                        </div>
+                        
+                        <div id="feedback-details" class="hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-blue-600 mb-1" id="final-score">85</div>
+                                        <div class="text-sm text-gray-600">最终成绩</div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-green-600 mb-1" id="correct-rate">85%</div>
+                                        <div class="text-sm text-gray-600">正确率</div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-purple-600 mb-1" id="rank">12</div>
+                                        <div class="text-sm text-gray-600">班级排名</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-3">教师评语</h3>
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <p class="text-gray-700" id="teacher-comment">
+                                        作业完成情况良好，解题思路清晰，步骤完整。建议在积分计算方面多加练习，注意细节处理。
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-3">详细评分</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="text-sm text-gray-700">解题思路</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-green-600 h-2 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900">18/20</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="text-sm text-gray-700">计算过程</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-yellow-600 h-2 rounded-full" style="width: 80%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900">16/20</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <span class="text-sm text-gray-700">答案正确性</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900">17/20</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交确认模态框 -->
+    <div id="submit-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-blue-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-lg font-semibold">确认提交</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-700 mb-4">确定要提交作业吗？提交后将无法修改。</p>
+                <div id="submit-files" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">提交文件：</h4>
+                    <div id="submit-file-list" class="text-sm text-gray-600"></div>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancel-submit" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="button" id="confirm-submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                        确认提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 模拟作业数据
+        let assignmentData = {
+            id: 1,
+            title: '高等数学作业三',
+            course: '高等数学',
+            teacher: '李老师',
+            publishTime: '2024-01-15',
+            deadline: '2024-01-20T23:59:00',
+            description: '微积分基础练习，包含极限、导数、积分等知识点',
+            requirements: [
+                '完成教材第三章习题1-10',
+                '提交PDF格式的解答过程',
+                '确保字迹清晰，步骤完整',
+                '独立完成，不得抄袭',
+                '按时提交，逾期不予受理'
+            ],
+            status: 'not_submitted', // not_submitted, submitted, graded
+            submittedFiles: [],
+            submitTime: null,
+            grade: null,
+            feedback: null
+        };
+
+        // 倒计时功能
+        function updateCountdown() {
+            const deadline = new Date(assignmentData.deadline);
+            const now = new Date();
+            const diff = deadline - now;
+
+            if (diff <= 0) {
+                document.getElementById('time-remaining').textContent = '已截止';
+                document.getElementById('time-remaining').className = 'font-medium text-red-600';
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('submit-btn').textContent = '已截止';
+                document.getElementById('submit-btn').className = 'px-6 py-2 bg-gray-400 text-white rounded-lg text-sm cursor-not-allowed';
+            } else {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                
+                let timeText = '';
+                if (days > 0) {
+                    timeText = `${days}天${hours}小时`;
+                } else if (hours > 0) {
+                    timeText = `${hours}小时${minutes}分钟`;
+                } else {
+                    timeText = `${minutes}分钟`;
+                }
+                
+                document.getElementById('time-remaining').textContent = timeText;
+                
+                if (diff < 24 * 60 * 60 * 1000) { // 小于1天
+                    document.getElementById('time-remaining').className = 'font-medium text-orange-600';
+                }
+            }
+        }
+
+        // 文件上传处理
+        function handleFileUpload() {
+            const fileInput = document.getElementById('file-input');
+            const fileList = document.getElementById('file-list');
+            
+            fileList.innerHTML = '';
+            
+            Array.from(fileInput.files).forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                fileItem.innerHTML = `
+                    <div class="flex items-center">
+                        <i data-lucide="file" class="h-4 w-4 text-gray-400 mr-2"></i>
+                        <span class="text-sm text-gray-700">${file.name}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)}MB</span>
+                        <button type="button" onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                            <i data-lucide="x" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+            
+            lucide.createIcons();
+        }
+
+        // 移除文件
+        function removeFile(index) {
+            const fileInput = document.getElementById('file-input');
+            const dt = new DataTransfer();
+            
+            Array.from(fileInput.files).forEach((file, i) => {
+                if (i !== index) {
+                    dt.items.add(file);
+                }
+            });
+            
+            fileInput.files = dt.files;
+            handleFileUpload();
+        }
+
+        // 更新提交状态
+        function updateSubmissionStatus() {
+            const notSubmitted = document.getElementById('not-submitted');
+            const submitted = document.getElementById('submitted');
+            const graded = document.getElementById('graded');
+            const feedbackContent = document.getElementById('feedback-content');
+            const feedbackDetails = document.getElementById('feedback-details');
+
+            // 隐藏所有状态
+            notSubmitted.classList.add('hidden');
+            submitted.classList.add('hidden');
+            graded.classList.add('hidden');
+            feedbackContent.classList.remove('hidden');
+            feedbackDetails.classList.add('hidden');
+
+            // 显示对应状态
+            switch (assignmentData.status) {
+                case 'submitted':
+                    submitted.classList.remove('hidden');
+                    if (assignmentData.submitTime) {
+                        document.getElementById('submit-time').textContent = assignmentData.submitTime;
+                    }
+                    break;
+                case 'graded':
+                    graded.classList.remove('hidden');
+                    feedbackContent.classList.add('hidden');
+                    feedbackDetails.classList.remove('hidden');
+                    if (assignmentData.grade) {
+                        document.getElementById('grade-score').textContent = assignmentData.grade.score;
+                        document.getElementById('grade-time').textContent = assignmentData.grade.time;
+                        document.getElementById('final-score').textContent = assignmentData.grade.score;
+                        document.getElementById('correct-rate').textContent = assignmentData.grade.correctRate;
+                        document.getElementById('rank').textContent = assignmentData.grade.rank;
+                        document.getElementById('teacher-comment').textContent = assignmentData.grade.comment;
+                    }
+                    break;
+                default:
+                    notSubmitted.classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // 提交作业
+        function submitAssignment() {
+            const fileInput = document.getElementById('file-input');
+            const notes = document.getElementById('assignment-notes').value;
+
+            if (fileInput.files.length === 0) {
+                alert('请选择要提交的文件');
+                return;
+            }
+
+            // 显示确认模态框
+            const submitFileList = document.getElementById('submit-file-list');
+            submitFileList.innerHTML = '';
+            
+            Array.from(fileInput.files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center text-sm text-gray-600 mb-1';
+                fileItem.innerHTML = `
+                    <i data-lucide="file" class="h-3 w-3 mr-2"></i>
+                    ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)
+                `;
+                submitFileList.appendChild(fileItem);
+            });
+
+            document.getElementById('submit-modal').style.display = 'block';
+            lucide.createIcons();
+        }
+
+        // 确认提交
+        function confirmSubmit() {
+            const fileInput = document.getElementById('file-input');
+            const notes = document.getElementById('assignment-notes').value;
+
+            // 模拟提交过程
+            assignmentData.status = 'submitted';
+            assignmentData.submittedFiles = Array.from(fileInput.files).map(file => ({
+                name: file.name,
+                size: file.size,
+                type: file.type
+            }));
+            assignmentData.submitTime = new Date().toLocaleString();
+
+            // 更新界面
+            updateSubmissionStatus();
+            document.getElementById('submit-modal').style.display = 'none';
+            
+            // 清空表单
+            fileInput.value = '';
+            document.getElementById('assignment-notes').value = '';
+            document.getElementById('file-list').innerHTML = '';
+
+            alert('作业提交成功！');
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 文件选择按钮
+            document.getElementById('select-file-btn').addEventListener('click', () => {
+                document.getElementById('file-input').click();
+            });
+
+            // 文件输入变化
+            document.getElementById('file-input').addEventListener('change', handleFileUpload);
+
+            // 表单提交
+            document.getElementById('assignment-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitAssignment();
+            });
+
+            // 拖拽上传
+            const uploadArea = document.getElementById('file-upload-area');
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                document.getElementById('file-input').files = e.dataTransfer.files;
+                handleFileUpload();
+            });
+
+            // 模态框事件
+            document.getElementById('cancel-submit').addEventListener('click', () => {
+                document.getElementById('submit-modal').style.display = 'none';
+            });
+            document.getElementById('confirm-submit').addEventListener('click', confirmSubmit);
+
+            // 点击模态框外部关闭
+            document.getElementById('submit-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('submit-modal')) {
+                    document.getElementById('submit-modal').style.display = 'none';
+                }
+            });
+
+            // 初始化
+            updateCountdown();
+            updateSubmissionStatus();
+            setInterval(updateCountdown, 60000); // 每分钟更新一次倒计时
+        });
+    </script>
+</body>
+</html> 

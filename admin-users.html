@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 用户管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        .sidebar-item.active {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-right: 3px solid #8b5cf6;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">管理员：18072830839</span>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        控制台概览
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-purple-700 rounded-lg cursor-pointer">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>
+                        用户管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        课程管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-warehouse.html'">
+                        <i data-lucide="database" class="h-5 w-5 mr-3"></i>
+                        仓库管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-statistics.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        数据统计
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-settings.html'">
+                        <i data-lucide="settings" class="h-5 w-5 mr-3"></i>
+                        系统设置
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">用户管理</h1>
+                    <p class="text-gray-600">管理系统中的所有用户，包括学生和教师</p>
+                </div>
+
+                <!-- 操作栏 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                        <div class="flex space-x-4">
+                            <button id="add-user-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="user-plus" class="h-4 w-4 mr-2"></i>
+                                添加用户
+                            </button>
+                            <button id="export-users-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="download" class="h-4 w-4 mr-2"></i>
+                                导出用户
+                            </button>
+                        </div>
+                        <div class="flex space-x-4">
+                            <select id="role-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">所有角色</option>
+                                <option value="student">学生</option>
+                                <option value="teacher">教师</option>
+                            </select>
+                            <div class="relative">
+                                <input type="text" id="search-users" placeholder="搜索用户..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-64">
+                                <i data-lucide="search" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户列表 -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        用户信息
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        角色
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        状态
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        注册时间
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        最后登录
+                                    </th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        操作
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- 用户数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-white rounded-lg shadow-sm border mt-6 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span id="start-index">1</span> 到 <span id="end-index">10</span> 条，共 <span id="total-count">0</span> 条记录
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                上一页
+                            </button>
+                            <span id="current-page" class="px-3 py-1 bg-purple-600 text-white rounded text-sm">1</span>
+                            <button id="next-page" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑用户模态框 -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-purple-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 id="modal-title" class="text-lg font-semibold">添加用户</h3>
+            </div>
+            <form id="user-form" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">用户名</label>
+                        <input type="text" id="username" name="username" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">真实姓名</label>
+                        <input type="text" id="real-name" name="realName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+                        <input type="email" id="email" name="email" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">手机号</label>
+                        <input type="tel" id="phone" name="phone" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">角色</label>
+                        <select id="role" name="role" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">请选择角色</option>
+                            <option value="student">学生</option>
+                            <option value="teacher">教师</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                        <select id="status" name="status" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="active">正常</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">密码</label>
+                    <input type="password" id="password" name="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <p class="text-xs text-gray-500 mt-1">编辑时留空表示不修改密码</p>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 用户数据管理
+        let users = [];
+
+        // 从localStorage加载用户数据
+        function loadUsers() {
+            const savedUsers = localStorage.getItem('admin_users');
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            } else {
+                // 初始化默认用户数据
+                users = [
+                    {
+                        id: 1,
+                        username: 'student001',
+                        realName: '张三',
+                        email: 'zhangsan@example.com',
+                        phone: '13800138001',
+                        role: 'student',
+                        status: 'active',
+                        registerTime: '2024-01-01',
+                        lastLogin: '2024-01-15 14:30'
+                    },
+                    {
+                        id: 2,
+                        username: 'teacher001',
+                        realName: '李老师',
+                        email: 'lilaoshi@example.com',
+                        phone: '13800138002',
+                        role: 'teacher',
+                        status: 'active',
+                        registerTime: '2024-01-02',
+                        lastLogin: '2024-01-15 15:20'
+                    },
+                    {
+                        id: 3,
+                        username: 'student002',
+                        realName: '王五',
+                        email: 'wangwu@example.com',
+                        phone: '13800138003',
+                        role: 'student',
+                        status: 'inactive',
+                        registerTime: '2024-01-03',
+                        lastLogin: '2024-01-14 09:15'
+                    }
+                ];
+                // 保存到localStorage
+                saveUsers();
+            }
+        }
+
+        // 保存用户数据到localStorage
+        function saveUsers() {
+            localStorage.setItem('admin_users', JSON.stringify(users));
+        }
+
+        let currentPage = 1;
+        const pageSize = 10;
+        let filteredUsers = [];
+
+        // 渲染用户列表
+        function renderUsers() {
+            const tbody = document.getElementById('users-table-body');
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageUsers = filteredUsers.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageUsers.map(user => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i data-lucide="${user.role === 'teacher' ? 'book-open' : 'graduation-cap'}" class="h-5 w-5 text-purple-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${user.realName}</div>
+                                <div class="text-sm text-gray-500">${user.username}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.role === 'teacher' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                        }">
+                            ${user.role === 'teacher' ? '教师' : '学生'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${user.status === 'active' ? '正常' : '禁用'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${user.registerTime}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${user.lastLogin}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editUser(${user.id})" class="text-purple-600 hover:text-purple-900 mr-3">编辑</button>
+                        <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // 更新分页信息
+            document.getElementById('start-index').textContent = startIndex + 1;
+            document.getElementById('end-index').textContent = Math.min(endIndex, filteredUsers.length);
+            document.getElementById('total-count').textContent = filteredUsers.length;
+            document.getElementById('current-page').textContent = currentPage;
+
+            // 更新分页按钮状态
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = endIndex >= filteredUsers.length;
+
+            // 重新初始化图标
+            lucide.createIcons();
+        }
+
+        // 搜索和筛选
+        function filterUsers() {
+            const searchTerm = document.getElementById('search-users').value.toLowerCase();
+            const roleFilter = document.getElementById('role-filter').value;
+
+            filteredUsers = users.filter(user => {
+                const matchesSearch = user.realName.toLowerCase().includes(searchTerm) ||
+                                    user.username.toLowerCase().includes(searchTerm) ||
+                                    user.email.toLowerCase().includes(searchTerm);
+                const matchesRole = !roleFilter || user.role === roleFilter;
+                return matchesSearch && matchesRole;
+            });
+
+            currentPage = 1;
+            renderUsers();
+        }
+
+        // 添加用户
+        function addUser() {
+            document.getElementById('modal-title').textContent = '添加用户';
+            document.getElementById('user-form').reset();
+            document.getElementById('password').required = true;
+            document.getElementById('user-modal').style.display = 'block';
+        }
+
+        // 编辑用户
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            document.getElementById('modal-title').textContent = '编辑用户';
+            document.getElementById('username').value = user.username;
+            document.getElementById('real-name').value = user.realName;
+            document.getElementById('email').value = user.email;
+            document.getElementById('phone').value = user.phone;
+            document.getElementById('role').value = user.role;
+            document.getElementById('status').value = user.status;
+            document.getElementById('password').value = '';
+            document.getElementById('password').required = false;
+
+            // 存储当前编辑的用户ID
+            document.getElementById('user-form').dataset.editId = userId;
+            document.getElementById('user-modal').style.display = 'block';
+        }
+
+        // 删除用户
+        function deleteUser(userId) {
+            if (confirm('确定要删除这个用户吗？此操作不可恢复。')) {
+                users = users.filter(u => u.id !== userId);
+                saveUsers(); // 保存到localStorage
+                filterUsers();
+                alert('用户删除成功！');
+            }
+        }
+
+        // 保存用户
+        function saveUser(formData) {
+            const editId = document.getElementById('user-form').dataset.editId;
+            
+            if (editId) {
+                // 编辑用户
+                const userIndex = users.findIndex(u => u.id === parseInt(editId));
+                if (userIndex !== -1) {
+                    users[userIndex] = {
+                        ...users[userIndex],
+                        username: formData.get('username'),
+                        realName: formData.get('realName'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone'),
+                        role: formData.get('role'),
+                        status: formData.get('status')
+                    };
+                    if (formData.get('password')) {
+                        users[userIndex].password = formData.get('password');
+                    }
+                }
+                alert('用户更新成功！');
+            } else {
+                // 添加用户
+                const newUser = {
+                    id: Math.max(...users.map(u => u.id), 0) + 1, // 确保ID唯一
+                    username: formData.get('username'),
+                    realName: formData.get('realName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    role: formData.get('role'),
+                    status: formData.get('status'),
+                    password: formData.get('password'),
+                    registerTime: new Date().toISOString().split('T')[0],
+                    lastLogin: '从未登录'
+                };
+                users.push(newUser);
+                alert('用户添加成功！');
+            }
+
+            saveUsers(); // 保存到localStorage
+            delete document.getElementById('user-form').dataset.editId;
+            document.getElementById('user-modal').style.display = 'none';
+            filterUsers();
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加用户按钮事件
+            const addUserBtn = document.getElementById('add-user-btn');
+            if (addUserBtn) {
+                addUserBtn.addEventListener('click', addUser);
+            }
+
+            // 取消按钮事件
+            const cancelBtn = document.getElementById('cancel-btn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    document.getElementById('user-modal').style.display = 'none';
+                });
+            }
+
+            // 搜索功能
+            const searchInput = document.getElementById('search-users');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterUsers);
+            }
+
+            // 角色筛选
+            const roleFilter = document.getElementById('role-filter');
+            if (roleFilter) {
+                roleFilter.addEventListener('change', filterUsers);
+            }
+
+            // 分页按钮
+            const prevPageBtn = document.getElementById('prev-page');
+            if (prevPageBtn) {
+                prevPageBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderUsers();
+                    }
+                });
+            }
+
+            const nextPageBtn = document.getElementById('next-page');
+            if (nextPageBtn) {
+                nextPageBtn.addEventListener('click', () => {
+                    const maxPage = Math.ceil(filteredUsers.length / pageSize);
+                    if (currentPage < maxPage) {
+                        currentPage++;
+                        renderUsers();
+                    }
+                });
+            }
+
+            // 表单提交
+            const userForm = document.getElementById('user-form');
+            if (userForm) {
+                userForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    saveUser(formData);
+                });
+            }
+
+            // 导出按钮
+            const exportBtn = document.getElementById('export-users-btn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
+                    alert('导出功能开发中...');
+                });
+            }
+
+            // 点击模态框外部关闭
+            const modal = document.getElementById('user-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            // 初始化页面
+            loadUsers(); // 加载用户数据
+            filteredUsers = [...users]; // 初始化筛选后的用户列表
+            renderUsers();
+        });
+    </script>
+</body>
+</html> 

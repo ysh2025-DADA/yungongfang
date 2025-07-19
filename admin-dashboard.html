@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育平台 - 管理员控制台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        .sidebar-item.active {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-right: 3px solid #8b5cf6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-purple-600" id="user-initial">管</span>
+                        </div>
+                        <span class="text-sm text-gray-700" id="user-name">系统管理员</span>
+                    </div>
+                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-purple-700 rounded-lg cursor-pointer">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>
+                        控制台概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-users.html'">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>
+                        用户管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
+                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
+                        课程管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
+                        资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-warehouse.html'">
+                        <i data-lucide="database" class="h-5 w-5 mr-3"></i>
+                        仓库管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-statistics.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>
+                        数据统计
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-settings.html'">
+                        <i data-lucide="settings" class="h-5 w-5 mr-3"></i>
+                        系统设置
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 欢迎信息 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">欢迎回来，管理员！</h1>
+                    <p class="text-gray-600">今天是 <span id="current-date"></span>，以下是系统概览信息</p>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-100 rounded-lg">
+                                <i data-lucide="users" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">总用户数</p>
+                                <p class="text-2xl font-bold text-gray-900">1,234</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 rounded-lg">
+                                <i data-lucide="graduation-cap" class="h-6 w-6 text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">学生数量</p>
+                                <p class="text-2xl font-bold text-gray-900">1,089</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-yellow-100 rounded-lg">
+                                <i data-lucide="book-open" class="h-6 w-6 text-yellow-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">教师数量</p>
+                                <p class="text-2xl font-bold text-gray-900">145</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <i data-lucide="file-text" class="h-6 w-6 text-purple-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">课程数量</p>
+                                <p class="text-2xl font-bold text-gray-900">89</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近活动 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">最近登录记录</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">张老师</p>
+                                    <p class="text-xs text-gray-500">2024-01-15 14:30</p>
+                                </div>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">教师</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">李同学</p>
+                                    <p class="text-xs text-gray-500">2024-01-15 14:25</p>
+                                </div>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">学生</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">王老师</p>
+                                    <p class="text-xs text-gray-500">2024-01-15 14:20</p>
+                                </div>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">教师</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">系统状态</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">服务器状态</span>
+                                <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">正常运行</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">数据库连接</span>
+                                <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">正常</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">在线用户</span>
+                                <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">156</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">系统版本</span>
+                                <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded-full">v1.0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速操作 -->
+                <div class="mt-8 bg-white rounded-lg shadow-sm p-6 border">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">快速操作</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i data-lucide="user-plus" class="h-8 w-8 text-blue-600 mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">添加用户</span>
+                        </button>
+                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i data-lucide="book-plus" class="h-8 w-8 text-green-600 mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">创建课程</span>
+                        </button>
+                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i data-lucide="file-plus" class="h-8 w-8 text-purple-600 mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">上传资料</span>
+                        </button>
+                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i data-lucide="download" class="h-8 w-8 text-orange-600 mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">导出数据</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 加载当前用户信息
+        function loadCurrentUser() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                const userInitial = document.getElementById('user-initial');
+                const userName = document.getElementById('user-name');
+                
+                if (userInitial && userName) {
+                    userInitial.textContent = user.realName ? user.realName.charAt(0) : user.username.charAt(0);
+                    userName.textContent = user.realName ? user.realName : '系统管理员';
+                }
+            }
+        }
+
+        // 显示当前日期
+        const currentDate = new Date().toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+        });
+        document.getElementById('current-date').textContent = currentDate;
+
+        // 页面加载时初始化用户信息
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+        });
+
+        // 侧边栏交互
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.sidebar-item').forEach(i => {
+                    i.classList.remove('active', 'text-purple-700');
+                    i.classList.add('text-gray-600');
+                });
+                
+                // 添加active类到当前项
+                this.classList.add('active', 'text-purple-700');
+                this.classList.remove('text-gray-600');
+            });
+        });
+
+        // 退出登录
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            if (confirm('确定要退出登录吗？')) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // 快速操作按钮点击事件
+        document.querySelectorAll('.grid button').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.querySelector('span').textContent;
+                alert(`功能开发中：${action}`);
+            });
+        });
+    </script>
+</body>
+</html> 
