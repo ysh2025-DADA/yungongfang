@@ -814,7 +814,28 @@
 
         // 数字仓库操作函数
         function editDigitalRepo(repoId) {
-            alert(`编辑数字仓库功能开发中...\n仓库ID: ${repoId}`);
+            const digitalRepositories = getDigitalRepositories();
+            const repo = digitalRepositories.find(r => r.id === repoId);
+            if (!repo) {
+                alert('仓库不存在！');
+                return;
+            }
+            
+            // 创建编辑表单
+            const newName = prompt('请输入新的仓库名称：', repo.name);
+            if (!newName) return;
+            
+            const newDescription = prompt('请输入新的仓库描述：', repo.description);
+            if (!newDescription) return;
+            
+            // 更新仓库信息
+            repo.name = newName;
+            repo.description = newDescription;
+            repo.updatedAt = new Date().toISOString();
+            
+            saveDigitalRepositories(digitalRepositories);
+            renderDigitalRepositories();
+            alert('数字仓库编辑成功！');
         }
 
         function deleteDigitalRepo(repoId) {
@@ -829,7 +850,36 @@
 
         // 实体物品操作函数
         function editItem(itemId) {
-            alert(`编辑物品功能开发中...\n物品ID: ${itemId}`);
+            const items = getItems();
+            const item = items.find(i => i.id === itemId);
+            if (!item) {
+                alert('物品不存在！');
+                return;
+            }
+            
+            // 创建编辑表单
+            const newName = prompt('请输入新的物品名称：', item.name);
+            if (!newName) return;
+            
+            const newCategory = prompt('请输入新的物品分类：', item.category);
+            if (!newCategory) return;
+            
+            const newQuantity = prompt('请输入新的物品数量：', item.quantity);
+            if (!newQuantity || isNaN(newQuantity)) return;
+            
+            const newDescription = prompt('请输入新的物品描述：', item.description);
+            if (!newDescription) return;
+            
+            // 更新物品信息
+            item.name = newName;
+            item.category = newCategory;
+            item.quantity = parseInt(newQuantity);
+            item.description = newDescription;
+            item.updatedAt = new Date().toISOString();
+            
+            saveItems(items);
+            renderItems();
+            alert('物品编辑成功！');
         }
 
         function deleteItem(itemId) {
@@ -1029,20 +1079,133 @@
 
         // 其他按钮事件
         document.getElementById('create-digital-repo-btn').addEventListener('click', () => {
-            alert('新建数字仓库功能开发中...');
+            createDigitalRepo();
         });
 
         document.getElementById('upload-files-btn').addEventListener('click', () => {
-            alert('上传文件功能开发中...');
+            uploadFiles();
         });
 
         document.getElementById('add-item-btn').addEventListener('click', () => {
-            alert('添加物品功能开发中...');
+            addNewItem();
         });
 
         document.getElementById('batch-import-btn').addEventListener('click', () => {
-            alert('批量导入功能开发中...');
+            batchImport();
         });
+
+        // 新建数字仓库
+        function createDigitalRepo() {
+            const name = prompt('请输入仓库名称：');
+            if (!name) return;
+            
+            const description = prompt('请输入仓库描述：');
+            if (!description) return;
+            
+            const digitalRepositories = getDigitalRepositories();
+            const newRepo = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                fileCount: 0,
+                size: '0 MB',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            digitalRepositories.push(newRepo);
+            saveDigitalRepositories(digitalRepositories);
+            renderDigitalRepositories();
+            alert('数字仓库创建成功！');
+        }
+
+        // 上传文件
+        function uploadFiles() {
+            const repoId = prompt('请输入要上传文件的仓库ID：');
+            if (!repoId) return;
+            
+            const fileName = prompt('请输入文件名：');
+            if (!fileName) return;
+            
+            const fileSize = prompt('请输入文件大小（MB）：');
+            if (!fileSize || isNaN(fileSize)) return;
+            
+            const digitalRepositories = getDigitalRepositories();
+            const repo = digitalRepositories.find(r => r.id === parseInt(repoId));
+            if (!repo) {
+                alert('仓库不存在！');
+                return;
+            }
+            
+            // 更新仓库信息
+            repo.fileCount += 1;
+            const currentSize = parseFloat(repo.size.replace(' MB', ''));
+            repo.size = (currentSize + parseFloat(fileSize)).toFixed(2) + ' MB';
+            repo.updatedAt = new Date().toISOString();
+            
+            saveDigitalRepositories(digitalRepositories);
+            renderDigitalRepositories();
+            alert(`文件"${fileName}"上传成功！`);
+        }
+
+        // 添加新物品
+        function addNewItem() {
+            const name = prompt('请输入物品名称：');
+            if (!name) return;
+            
+            const category = prompt('请输入物品分类：');
+            if (!category) return;
+            
+            const quantity = prompt('请输入物品数量：');
+            if (!quantity || isNaN(quantity)) return;
+            
+            const description = prompt('请输入物品描述：');
+            if (!description) return;
+            
+            const items = getItems();
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                category: category,
+                quantity: parseInt(quantity),
+                borrowed: 0,
+                description: description,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            items.push(newItem);
+            saveItems(items);
+            renderItems();
+            alert('物品添加成功！');
+        }
+
+        // 批量导入
+        function batchImport() {
+            const importData = prompt('请输入要导入的数据（JSON格式）：');
+            if (!importData) return;
+            
+            try {
+                const data = JSON.parse(importData);
+                if (Array.isArray(data)) {
+                    const items = getItems();
+                    data.forEach(item => {
+                        item.id = Date.now() + Math.random();
+                        item.borrowed = item.borrowed || 0;
+                        item.createdAt = new Date().toISOString();
+                        item.updatedAt = new Date().toISOString();
+                        items.push(item);
+                    });
+                    saveItems(items);
+                    renderItems();
+                    alert(`批量导入成功！共导入 ${data.length} 个物品`);
+                } else {
+                    alert('数据格式错误！请确保是数组格式');
+                }
+            } catch (error) {
+                alert(`导入失败：${error.message}`);
+            }
+        }
 
         // 初始化页面
         renderDigitalRepositories();

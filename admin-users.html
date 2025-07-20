@@ -689,10 +689,13 @@
                 });
             }
 
+            // 检查管理员权限
+            if (!checkAdminPermission()) {
+                return;
+            }
+
             // 初始化页面
-            loadUsers(); // 加载用户数据
-            filteredUsers = [...users]; // 初始化筛选后的用户列表
-            renderUsers();
+            initializePage();
         });
     </script>
 </body>

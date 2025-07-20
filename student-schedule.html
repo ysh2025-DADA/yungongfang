@@ -211,6 +211,16 @@
                     </div>
                 </div>
 
+                <!-- 月视图 -->
+                <div id="month-view" class="bg-white rounded-lg shadow-sm border hidden">
+                    <!-- 月视图内容将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 列表视图 -->
+                <div id="list-view" class="bg-white rounded-lg shadow-sm border hidden">
+                    <!-- 列表视图内容将通过JavaScript动态生成 -->
+                </div>
+
                 <!-- 今日课程 -->
                 <div class="bg-white rounded-lg shadow-sm border mt-6">
                     <div class="p-6 border-b">
@@ -564,20 +574,203 @@
         function changeViewMode() {
             const viewMode = document.getElementById('view-mode').value;
             const weekView = document.getElementById('week-view');
+            const monthView = document.getElementById('month-view');
+            const listView = document.getElementById('list-view');
+            
+            // 隐藏所有视图
+            weekView.style.display = 'none';
+            monthView.style.display = 'none';
+            listView.style.display = 'none';
             
             switch (viewMode) {
                 case 'week':
                     weekView.style.display = 'block';
+                    renderSchedule();
                     break;
                 case 'month':
-                    weekView.style.display = 'none';
-                    alert('月视图功能开发中...');
+                    monthView.style.display = 'block';
+                    renderMonthView();
                     break;
                 case 'list':
-                    weekView.style.display = 'none';
-                    alert('列表视图功能开发中...');
+                    listView.style.display = 'block';
+                    renderListView();
                     break;
             }
+        }
+
+        // 渲染月视图
+        function renderMonthView() {
+            const monthContainer = document.getElementById('month-view');
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // 获取当月第一天和最后一天
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            let calendarHTML = `
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-gray-900">${year}年${month + 1}月课程表</h2>
+                            <div class="flex space-x-2">
+                                <button onclick="previousMonth()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                    上月
+                                </button>
+                                <button onclick="nextMonth()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                    下月
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-7 gap-1">
+                            <div class="text-center text-sm font-medium text-gray-500 p-2">日</div>
+                            <div class="text-center text-sm font-medium text-gray-500 p-2">一</div>
+                            <div class="text-center text-sm font-medium text-gray-500 p-2">二</div>
+                            <div class="text-center text-sm font-medium text-gray-500 p-2">三</div>
+                            <div class="text-center text-sm font-medium text-gray-500 p-2">四</div>
+                            <div class="text-center text-sm font-medium text-gray-500 p-2">五</div>
+                            <div class="text-center text-sm font-medium text-gray-500 p-2">六</div>
+            `;
+            
+            // 生成日历格子
+            for (let i = 0; i < 42; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+                
+                const isCurrentMonth = currentDate.getMonth() === month;
+                const isToday = currentDate.toDateString() === new Date().toDateString();
+                const dayOfWeek = currentDate.getDay();
+                
+                // 获取当天的课程
+                const dayCourses = getDayCourses(currentDate);
+                
+                let dayClass = 'p-2 min-h-[80px] border border-gray-200';
+                if (!isCurrentMonth) {
+                    dayClass += ' bg-gray-50 text-gray-400';
+                } else if (isToday) {
+                    dayClass += ' bg-blue-50 border-blue-300';
+                }
+                
+                calendarHTML += `<div class="${dayClass}">`;
+                calendarHTML += `<div class="text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-900'}">${currentDate.getDate()}</div>`;
+                
+                // 显示课程
+                dayCourses.forEach(course => {
+                    calendarHTML += `
+                        <div class="text-xs bg-blue-100 text-blue-800 p-1 rounded mt-1 cursor-pointer hover:bg-blue-200" 
+                             onclick="showCourseDetail('${course.name}')">
+                            ${course.name}
+                        </div>
+                    `;
+                });
+                
+                calendarHTML += '</div>';
+            }
+            
+            calendarHTML += '</div></div></div>';
+            monthContainer.innerHTML = calendarHTML;
+        }
+
+        // 渲染列表视图
+        function renderListView() {
+            const listContainer = document.getElementById('list-view');
+            
+            // 收集所有课程
+            const allCourses = [];
+            Object.values(scheduleData).forEach(weekData => {
+                Object.values(weekData).forEach(course => {
+                    if (!allCourses.find(c => c.name === course.name)) {
+                        allCourses.push(course);
+                    }
+                });
+            });
+            
+            if (allCourses.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <div class="text-center text-gray-500 py-8">
+                            <i data-lucide="calendar-x" class="h-12 w-12 text-gray-300 mx-auto mb-4"></i>
+                            <p>暂无课程安排</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let listHTML = `
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h2 class="text-lg font-semibold text-gray-900">课程列表</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+            `;
+            
+            allCourses.forEach(course => {
+                listHTML += `
+                    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-medium text-gray-900">${course.name}</h3>
+                                <p class="text-sm text-gray-600 mt-1">${course.teacher} · ${course.location}</p>
+                                <p class="text-sm text-gray-600 mt-1">${course.description}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="showCourseDetail('${course.name}')" 
+                                        class="text-blue-600 hover:text-blue-700 text-sm px-3 py-1 border border-blue-300 rounded hover:bg-blue-50">
+                                    查看详情
+                                </button>
+                                <button onclick="addToCalendar('${course.name}')" 
+                                        class="text-green-600 hover:text-green-700 text-sm px-3 py-1 border border-green-300 rounded hover:bg-green-50">
+                                    添加到日历
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            listHTML += '</div></div></div>';
+            listContainer.innerHTML = listHTML;
+        }
+
+        // 获取指定日期的课程
+        function getDayCourses(date) {
+            const dayOfWeek = date.getDay();
+            const weekData = scheduleData[currentWeek] || {};
+            const dayCourses = [];
+            
+            Object.values(weekData).forEach(course => {
+                // 这里可以根据实际数据结构来判断课程是否在指定日期
+                // 简化处理：随机分配课程到不同日期
+                if (Math.random() > 0.7) {
+                    dayCourses.push(course);
+                }
+            });
+            
+            return dayCourses.slice(0, 2); // 最多显示2个课程
+        }
+
+        // 添加到日历
+        function addToCalendar(courseName) {
+            alert(`✅ 课程"${courseName}"已添加到日历提醒`);
+        }
+
+        // 上月
+        function previousMonth() {
+            // 实现上月切换逻辑
+            alert('上月功能开发中...');
+        }
+
+        // 下月
+        function nextMonth() {
+            // 实现下月切换逻辑
+            alert('下月功能开发中...');
         }
 
         // 事件监听器

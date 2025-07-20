@@ -364,12 +364,32 @@
                     if (!window.githubSync) {
                         const script = document.createElement('script');
                         script.src = 'github-sync.js';
+                        script.onerror = () => {
+                            console.warn('GitHub同步脚本加载失败，使用本地数据');
+                        };
                         document.head.appendChild(script);
                         
-                        // 等待脚本加载完成
-                        await new Promise((resolve) => {
-                            script.onload = resolve;
+                        // 等待脚本加载完成，设置超时
+                        await new Promise((resolve, reject) => {
+                            const timeout = setTimeout(() => {
+                                reject(new Error('脚本加载超时'));
+                            }, 5000);
+                            
+                            script.onload = () => {
+                                clearTimeout(timeout);
+                                resolve();
+                            };
+                            
+                            script.onerror = () => {
+                                clearTimeout(timeout);
+                                reject(new Error('脚本加载失败'));
+                            };
                         });
+                    }
+                    
+                    // 检查脚本是否成功加载
+                    if (!window.githubSync) {
+                        throw new Error('GitHub同步脚本未正确加载');
                     }
                     
                     // 初始化同步
@@ -379,6 +399,8 @@
                         const users = await window.githubSync.syncUsers();
                         console.log('GitHub同步成功，获取到', users.length, '个用户');
                         return users;
+                    } else {
+                        console.warn('GitHub同步初始化失败:', result.error);
                     }
                 } catch (error) {
                     console.warn('GitHub同步失败，使用本地数据:', error.message);

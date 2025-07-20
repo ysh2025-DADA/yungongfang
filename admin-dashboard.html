@@ -274,19 +274,19 @@
                 <div class="mt-8 bg-white rounded-lg shadow-sm p-6 border">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">快速操作</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <button onclick="quickAddUser()" class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                             <i data-lucide="user-plus" class="h-8 w-8 text-blue-600 mb-2"></i>
                             <span class="text-sm font-medium text-gray-700">添加用户</span>
                         </button>
-                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors" onclick="window.location.href='admin-growth-records.html'">
+                        <button onclick="window.location.href='admin-growth-records.html'" class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                             <i data-lucide="trending-up" class="h-8 w-8 text-green-600 mb-2"></i>
                             <span class="text-sm font-medium text-gray-700">成长记录</span>
                         </button>
-                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <button onclick="quickUploadMaterial()" class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                             <i data-lucide="file-plus" class="h-8 w-8 text-purple-600 mb-2"></i>
                             <span class="text-sm font-medium text-gray-700">上传资料</span>
                         </button>
-                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <button onclick="quickExportData()" class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                             <i data-lucide="download" class="h-8 w-8 text-orange-600 mb-2"></i>
                             <span class="text-sm font-medium text-gray-700">导出数据</span>
                         </button>
@@ -299,6 +299,49 @@
     <script>
         // 初始化Lucide图标
         lucide.createIcons();
+
+        // 检查管理员权限
+        function checkAdminPermission() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                showPermissionError('请先登录管理员账号');
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(currentUser);
+                if (user.role !== 'admin') {
+                    showPermissionError('只有管理员才能访问此页面');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                showPermissionError('用户信息解析失败，请重新登录');
+                return false;
+            }
+        }
+
+        // 显示权限错误
+        function showPermissionError(message) {
+            const container = document.querySelector('.flex-1');
+            container.innerHTML = `
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="shield-x" class="h-8 w-8 text-red-600"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold text-gray-900 mb-4">访问被拒绝</h1>
+                        <p class="text-gray-600 mb-8">${message}</p>
+                        <div class="space-x-4">
+                            <button onclick="window.location.href='index.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                                返回登录页面
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
 
         // 加载当前用户信息
         function loadCurrentUser() {
@@ -326,6 +369,11 @@
 
         // 页面加载时初始化用户信息
         document.addEventListener('DOMContentLoaded', function() {
+            // 检查管理员权限
+            if (!checkAdminPermission()) {
+                return;
+            }
+            
             loadCurrentUser();
         });
 
@@ -358,6 +406,55 @@
                 alert(`功能开发中：${action}`);
             });
         });
+
+        // 快速添加用户
+        function quickAddUser() {
+            window.location.href = 'admin-users.html';
+        }
+
+        // 快速上传资料
+        function quickUploadMaterial() {
+            window.location.href = 'admin-materials.html';
+        }
+
+        // 快速导出数据
+        function quickExportData() {
+            try {
+                // 收集系统数据
+                const systemData = {
+                    exportTime: new Date().toISOString(),
+                    description: '云工坊系统数据导出',
+                    users: JSON.parse(localStorage.getItem('admin_users') || '[]'),
+                    courses: JSON.parse(localStorage.getItem('admin_courses') || '[]'),
+                    materials: JSON.parse(localStorage.getItem('admin_materials') || '[]'),
+                    growthRecords: JSON.parse(localStorage.getItem('admin_growth_records') || '[]'),
+                    attendance: JSON.parse(localStorage.getItem('admin_attendance') || '[]'),
+                    warehouse: JSON.parse(localStorage.getItem('admin_warehouse') || '[]'),
+                    statistics: {
+                        userCount: JSON.parse(localStorage.getItem('admin_users') || '[]').length,
+                        courseCount: JSON.parse(localStorage.getItem('admin_courses') || '[]').length,
+                        materialCount: JSON.parse(localStorage.getItem('admin_materials') || '[]').length,
+                        recordCount: JSON.parse(localStorage.getItem('admin_growth_records') || '[]').length
+                    }
+                };
+
+                // 创建下载链接
+                const dataStr = JSON.stringify(systemData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `云工坊系统数据_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                alert(`✅ 数据导出成功！\n\n导出文件：云工坊系统数据_${new Date().toISOString().split('T')[0]}.json\n\n包含数据：\n- 用户数据：${systemData.statistics.userCount}个\n- 课程数据：${systemData.statistics.courseCount}个\n- 资料数据：${systemData.statistics.materialCount}个\n- 成长记录：${systemData.statistics.recordCount}个`);
+            } catch (error) {
+                alert(`❌ 数据导出失败：${error.message}`);
+            }
+        }
     </script>
 </body>
 </html> 

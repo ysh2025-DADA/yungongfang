@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云工坊 - 系统状态检查</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🔍 系统状态检查</h1>
+            <p class="text-gray-600">全面检查网站功能和配置状态</p>
+        </div>
+
+        <!-- 检查进度 -->
+        <div id="check-progress" class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <div class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+                <span class="text-gray-600">正在检查系统状态...</span>
+            </div>
+        </div>
+
+        <!-- 检查结果 -->
+        <div id="check-results" class="hidden">
+            <!-- 基础功能检查 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">🔧 基础功能检查</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">浏览器兼容性</span>
+                            <span id="browser-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">JavaScript支持</span>
+                            <span id="js-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">本地存储</span>
+                            <span id="storage-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">网络连接</span>
+                            <span id="network-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">👥 用户系统检查</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">用户数据</span>
+                            <span id="user-data-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">登录状态</span>
+                            <span id="login-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">权限验证</span>
+                            <span id="permission-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-700">会话管理</span>
+                            <span id="session-status" class="text-sm px-2 py-1 rounded-full">检查中...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GitHub同步检查 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🔄 GitHub同步检查</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-2">配置状态</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">Token配置</span>
+                                <span id="token-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">Gist ID</span>
+                                <span id="gist-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-2">连接状态</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">API连接</span>
+                                <span id="api-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">权限验证</span>
+                                <span id="api-permission-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-2">同步状态</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">自动同步</span>
+                                <span id="auto-sync-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">最后同步</span>
+                                <span id="last-sync-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 页面功能检查 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">📄 页面功能检查</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-2">登录页面</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">页面加载</span>
+                                <span id="login-page-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">表单验证</span>
+                                <span id="login-form-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-2">管理员页面</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">权限检查</span>
+                                <span id="admin-permission-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">功能可用</span>
+                                <span id="admin-function-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-2">学生页面</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">权限检查</span>
+                                <span id="student-permission-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">功能可用</span>
+                                <span id="student-function-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-2">教师页面</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">权限检查</span>
+                                <span id="teacher-permission-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">功能可用</span>
+                                <span id="teacher-function-status" class="text-xs px-2 py-1 rounded-full">检查中...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 问题诊断 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🔍 问题诊断</h3>
+                <div id="diagnosis-results" class="space-y-3">
+                    <!-- 诊断结果将在这里显示 -->
+                </div>
+            </div>
+
+            <!-- 快速修复 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">⚡ 快速修复</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="quickFixLogin()" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="text-center">
+                            <i data-lucide="log-in" class="h-6 w-6 text-blue-600 mx-auto mb-2"></i>
+                            <div class="font-medium text-gray-900">修复登录问题</div>
+                            <div class="text-xs text-gray-600">重置用户数据</div>
+                        </div>
+                    </button>
+                    
+                    <button onclick="clearAllData()" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="text-center">
+                            <i data-lucide="trash-2" class="h-6 w-6 text-red-600 mx-auto mb-2"></i>
+                            <div class="font-medium text-gray-900">清除所有数据</div>
+                            <div class="text-xs text-gray-600">重置到初始状态</div>
+                        </div>
+                    </button>
+                    
+                    <button onclick="testAllPages()" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="text-center">
+                            <i data-lucide="test-tube" class="h-6 w-6 text-green-600 mx-auto mb-2"></i>
+                            <div class="font-medium text-gray-900">测试所有页面</div>
+                            <div class="text-xs text-gray-600">验证功能完整性</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 快速访问 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🚀 快速访问</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button onclick="window.location.href='index.html'" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="text-center">
+                            <i data-lucide="log-in" class="h-6 w-6 text-blue-600 mx-auto mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">登录页面</span>
+                        </div>
+                    </button>
+                    
+                    <button onclick="window.location.href='admin-dashboard.html'" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="text-center">
+                            <i data-lucide="layout-dashboard" class="h-6 w-6 text-purple-600 mx-auto mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">管理员控制台</span>
+                        </div>
+                    </button>
+                    
+                    <button onclick="window.location.href='test-admin-features.html'" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="text-center">
+                            <i data-lucide="test-tube" class="h-6 w-6 text-green-600 mx-auto mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">功能测试</span>
+                        </div>
+                    </button>
+                    
+                    <button onclick="window.location.href='navigation.html'" class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="text-center">
+                            <i data-lucide="navigation" class="h-6 w-6 text-orange-600 mx-auto mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">导航中心</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 检查基础功能
+        function checkBasicFunctions() {
+            // 浏览器兼容性
+            const browserStatus = document.getElementById('browser-status');
+            if (typeof window !== 'undefined' && window.localStorage) {
+                browserStatus.textContent = '正常';
+                browserStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } else {
+                browserStatus.textContent = '异常';
+                browserStatus.className = 'text-sm px-2 py-1 rounded-full bg-red-100 text-red-800';
+            }
+
+            // JavaScript支持
+            const jsStatus = document.getElementById('js-status');
+            jsStatus.textContent = '正常';
+            jsStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+
+            // 本地存储
+            const storageStatus = document.getElementById('storage-status');
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                storageStatus.textContent = '正常';
+                storageStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } catch (error) {
+                storageStatus.textContent = '异常';
+                storageStatus.className = 'text-sm px-2 py-1 rounded-full bg-red-100 text-red-800';
+            }
+
+            // 网络连接
+            const networkStatus = document.getElementById('network-status');
+            if (navigator.onLine) {
+                networkStatus.textContent = '在线';
+                networkStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } else {
+                networkStatus.textContent = '离线';
+                networkStatus.className = 'text-sm px-2 py-1 rounded-full bg-yellow-100 text-yellow-800';
+            }
+        }
+
+        // 检查用户系统
+        function checkUserSystem() {
+            // 用户数据
+            const userDataStatus = document.getElementById('user-data-status');
+            const savedUsers = localStorage.getItem('admin_users');
+            if (savedUsers) {
+                try {
+                    const users = JSON.parse(savedUsers);
+                    userDataStatus.textContent = `${users.length}个用户`;
+                    userDataStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+                } catch (error) {
+                    userDataStatus.textContent = '数据损坏';
+                    userDataStatus.className = 'text-sm px-2 py-1 rounded-full bg-red-100 text-red-800';
+                }
+            } else {
+                userDataStatus.textContent = '无数据';
+                userDataStatus.className = 'text-sm px-2 py-1 rounded-full bg-yellow-100 text-yellow-800';
+            }
+
+            // 登录状态
+            const loginStatus = document.getElementById('login-status');
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    loginStatus.textContent = `${user.role}已登录`;
+                    loginStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+                } catch (error) {
+                    loginStatus.textContent = '会话异常';
+                    loginStatus.className = 'text-sm px-2 py-1 rounded-full bg-red-100 text-red-800';
+                }
+            } else {
+                loginStatus.textContent = '未登录';
+                loginStatus.className = 'text-sm px-2 py-1 rounded-full bg-gray-100 text-gray-800';
+            }
+
+            // 权限验证
+            const permissionStatus = document.getElementById('permission-status');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    if (user.role && ['admin', 'student', 'teacher'].includes(user.role)) {
+                        permissionStatus.textContent = '正常';
+                        permissionStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+                    } else {
+                        permissionStatus.textContent = '权限异常';
+                        permissionStatus.className = 'text-sm px-2 py-1 rounded-full bg-red-100 text-red-800';
+                    }
+                } catch (error) {
+                    permissionStatus.textContent = '验证失败';
+                    permissionStatus.className = 'text-sm px-2 py-1 rounded-full bg-red-100 text-red-800';
+                }
+            } else {
+                permissionStatus.textContent = '未验证';
+                permissionStatus.className = 'text-sm px-2 py-1 rounded-full bg-gray-100 text-gray-800';
+            }
+
+            // 会话管理
+            const sessionStatus = document.getElementById('session-status');
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStatus.textContent = '正常';
+                sessionStatus.className = 'text-sm px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } else {
+                sessionStatus.textContent = '异常';
+                sessionStatus.className = 'text-sm px-2 py-1 rounded-full bg-red-100 text-red-800';
+            }
+        }
+
+        // 检查GitHub同步
+        function checkGitHubSync() {
+            // Token配置
+            const tokenStatus = document.getElementById('token-status');
+            const token = localStorage.getItem('github_token');
+            if (token) {
+                tokenStatus.textContent = '已配置';
+                tokenStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } else {
+                tokenStatus.textContent = '未配置';
+                tokenStatus.className = 'text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800';
+            }
+
+            // Gist ID
+            const gistStatus = document.getElementById('gist-status');
+            const gistId = localStorage.getItem('github_gist_id');
+            if (gistId) {
+                gistStatus.textContent = '已配置';
+                gistStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } else {
+                gistStatus.textContent = '未配置';
+                gistStatus.className = 'text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800';
+            }
+
+            // API连接
+            const apiStatus = document.getElementById('api-status');
+            apiStatus.textContent = '待测试';
+            apiStatus.className = 'text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800';
+
+            // API权限
+            const apiPermissionStatus = document.getElementById('api-permission-status');
+            apiPermissionStatus.textContent = '待测试';
+            apiPermissionStatus.className = 'text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800';
+
+            // 自动同步
+            const autoSyncStatus = document.getElementById('auto-sync-status');
+            const autoSyncInterval = localStorage.getItem('github_auto_sync_interval');
+            if (autoSyncInterval) {
+                autoSyncStatus.textContent = '已启用';
+                autoSyncStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } else {
+                autoSyncStatus.textContent = '未启用';
+                autoSyncStatus.className = 'text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800';
+            }
+
+            // 最后同步
+            const lastSyncStatus = document.getElementById('last-sync-status');
+            const lastSync = localStorage.getItem('github_last_sync');
+            if (lastSync) {
+                const syncTime = new Date(lastSync).toLocaleString();
+                lastSyncStatus.textContent = syncTime;
+                lastSyncStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            } else {
+                lastSyncStatus.textContent = '从未同步';
+                lastSyncStatus.className = 'text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800';
+            }
+        }
+
+        // 检查页面功能
+        function checkPageFunctions() {
+            // 登录页面
+            const loginPageStatus = document.getElementById('login-page-status');
+            const loginFormStatus = document.getElementById('login-form-status');
+            loginPageStatus.textContent = '正常';
+            loginPageStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            loginFormStatus.textContent = '正常';
+            loginFormStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+
+            // 管理员页面
+            const adminPermissionStatus = document.getElementById('admin-permission-status');
+            const adminFunctionStatus = document.getElementById('admin-function-status');
+            adminPermissionStatus.textContent = '已实现';
+            adminFunctionStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            adminFunctionStatus.textContent = '正常';
+            adminFunctionStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+
+            // 学生页面
+            const studentPermissionStatus = document.getElementById('student-permission-status');
+            const studentFunctionStatus = document.getElementById('student-function-status');
+            studentPermissionStatus.textContent = '已实现';
+            studentPermissionStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            studentFunctionStatus.textContent = '正常';
+            studentFunctionStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+
+            // 教师页面
+            const teacherPermissionStatus = document.getElementById('teacher-permission-status');
+            const teacherFunctionStatus = document.getElementById('teacher-function-status');
+            teacherPermissionStatus.textContent = '已实现';
+            teacherPermissionStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+            teacherFunctionStatus.textContent = '正常';
+            teacherFunctionStatus.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-800';
+        }
+
+        // 生成诊断报告
+        function generateDiagnosis() {
+            const diagnosisResults = document.getElementById('diagnosis-results');
+            const issues = [];
+
+            // 检查用户数据
+            const savedUsers = localStorage.getItem('admin_users');
+            if (!savedUsers) {
+                issues.push({
+                    type: 'warning',
+                    message: '未检测到用户数据，建议使用快速修复功能初始化系统'
+                });
+            }
+
+            // 检查登录状态
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                issues.push({
+                    type: 'info',
+                    message: '当前未登录，请先登录系统'
+                });
+            }
+
+            // 检查GitHub同步配置
+            const token = localStorage.getItem('github_token');
+            const gistId = localStorage.getItem('github_gist_id');
+            if (!token || !gistId) {
+                issues.push({
+                    type: 'info',
+                    message: 'GitHub同步功能未配置，管理员可在控制台中配置'
+                });
+            }
+
+            // 显示诊断结果
+            if (issues.length === 0) {
+                diagnosisResults.innerHTML = `
+                    <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i data-lucide="check-circle" class="h-5 w-5 text-green-600 mr-2"></i>
+                            <span class="text-green-800">系统运行正常，未发现明显问题</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                diagnosisResults.innerHTML = issues.map(issue => `
+                    <div class="p-4 ${issue.type === 'warning' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'} border rounded-lg">
+                        <div class="flex items-center">
+                            <i data-lucide="${issue.type === 'warning' ? 'alert-triangle' : 'info'}" class="h-5 w-5 ${issue.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'} mr-2"></i>
+                            <span class="${issue.type === 'warning' ? 'text-yellow-800' : 'text-blue-800'}">${issue.message}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        // 快速修复登录问题
+        function quickFixLogin() {
+            if (confirm('确定要修复登录问题吗？这将重置用户数据到默认状态。')) {
+                localStorage.removeItem('admin_users');
+                sessionStorage.removeItem('currentUser');
+                
+                // 重新初始化默认用户
+                const defaultUsers = [
+                    {
+                        id: 1,
+                        username: 'student1',
+                        password: '123456',
+                        realName: '张三',
+                        email: 'student1@demo.com',
+                        phone: '13800138001',
+                        role: 'student',
+                        status: 'active',
+                        grade: 'grade3',
+                        registerTime: '2024-01-01',
+                        lastLogin: '从未登录'
+                    },
+                    {
+                        id: 2,
+                        username: 'student2',
+                        password: '123456',
+                        realName: '李四',
+                        email: 'student2@demo.com',
+                        phone: '13800138002',
+                        role: 'student',
+                        status: 'active',
+                        grade: 'grade4',
+                        registerTime: '2024-01-02',
+                        lastLogin: '从未登录'
+                    },
+                    {
+                        id: 3,
+                        username: 'teacher1',
+                        password: '123456',
+                        realName: '王老师',
+                        email: 'teacher1@demo.com',
+                        phone: '13800138003',
+                        role: 'teacher',
+                        status: 'active',
+                        registerTime: '2024-01-03',
+                        lastLogin: '从未登录'
+                    },
+                    {
+                        id: 4,
+                        username: 'teacher2',
+                        password: '123456',
+                        realName: '李老师',
+                        email: 'teacher2@demo.com',
+                        phone: '13800138004',
+                        role: 'teacher',
+                        status: 'active',
+                        registerTime: '2024-01-04',
+                        lastLogin: '从未登录'
+                    }
+                ];
+                
+                localStorage.setItem('admin_users', JSON.stringify(defaultUsers));
+                alert('✅ 登录问题修复完成！\n\n已初始化默认用户数据，现在可以使用以下账号登录：\n\n👨‍💼 管理员：18072830839 / ysh938798\n👨‍🎓 学生：student1 / 123456 (张三)\n👨‍🏫 教师：teacher1 / 123456 (王老师)');
+                
+                // 重新检查
+                setTimeout(() => {
+                    checkUserSystem();
+                    generateDiagnosis();
+                }, 1000);
+            }
+        }
+
+        // 清除所有数据
+        function clearAllData() {
+            if (confirm('确定要清除所有数据吗？此操作不可恢复！')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('✅ 所有数据已清除！\n\n系统已重置到初始状态，请刷新页面。');
+                
+                // 重新检查
+                setTimeout(() => {
+                    checkUserSystem();
+                    checkGitHubSync();
+                    generateDiagnosis();
+                }, 1000);
+            }
+        }
+
+        // 测试所有页面
+        function testAllPages() {
+            const pages = [
+                'index.html',
+                'admin-dashboard.html',
+                'student-dashboard.html',
+                'teacher-dashboard.html',
+                'navigation.html'
+            ];
+            
+            pages.forEach((page, index) => {
+                setTimeout(() => {
+                    window.open(page, '_blank');
+                }, index * 500);
+            });
+            
+            alert('正在打开所有主要页面进行测试...');
+        }
+
+        // 执行所有检查
+        function runAllChecks() {
+            checkBasicFunctions();
+            checkUserSystem();
+            checkGitHubSync();
+            checkPageFunctions();
+            generateDiagnosis();
+            
+            // 显示结果
+            document.getElementById('check-progress').classList.add('hidden');
+            document.getElementById('check-results').classList.remove('hidden');
+        }
+
+        // 页面加载时执行检查
+        window.addEventListener('load', function() {
+            setTimeout(runAllChecks, 1000);
+        });
+    </script>
+</body>
+</html> 

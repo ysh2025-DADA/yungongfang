@@ -435,12 +435,73 @@
 
         // 下载资料
         function downloadMaterial(materialId) {
-            alert(`下载功能开发中...\n资料ID: ${materialId}`);
+            const material = materials.find(m => m.id === materialId);
+            if (!material) {
+                alert('资料不存在！');
+                return;
+            }
+            
+            // 创建模拟下载
+            const content = `这是${material.name}的内容。\n\n资料信息：\n- 名称：${material.name}\n- 类型：${material.type}\n- 大小：${material.size}\n- 上传时间：${material.uploadTime}\n- 上传者：${material.uploader}\n- 描述：${material.description}`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${material.name}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert(`✅ 资料"${material.name}"下载成功！`);
         }
 
         // 编辑资料
         function editMaterial(materialId) {
-            alert(`编辑功能开发中...\n资料ID: ${materialId}`);
+            const material = materials.find(m => m.id === materialId);
+            if (!material) {
+                alert('资料不存在！');
+                return;
+            }
+            
+            // 创建编辑表单
+            const newName = prompt('请输入新的资料名称：', material.name);
+            if (!newName) return;
+            
+            const newType = prompt('请输入新的资料类型（document/video/image/audio）：', material.type);
+            if (!newType) return;
+            
+            const newCourse = prompt('请输入新的所属课程：', material.course);
+            if (!newCourse) return;
+            
+            const newAccessLevel = prompt('请输入新的访问权限（public/students/teachers/private）：', material.accessLevel);
+            if (!newAccessLevel) return;
+            
+            const newDescription = prompt('请输入新的资料描述：', material.description);
+            if (!newDescription) return;
+            
+            // 更新资料信息
+            material.name = newName;
+            material.type = newType;
+            material.course = newCourse;
+            material.accessLevel = newAccessLevel;
+            material.description = newDescription;
+            material.updatedAt = new Date().toISOString();
+            
+            // 更新图标和颜色
+            material.icon = newType === 'document' ? 'file-text' : 
+                           newType === 'video' ? 'video' : 
+                           newType === 'image' ? 'image' : 
+                           newType === 'audio' ? 'headphones' : 'file';
+            material.color = newType === 'document' ? 'text-blue-600' : 
+                            newType === 'video' ? 'text-red-600' : 
+                            newType === 'image' ? 'text-green-600' : 
+                            newType === 'audio' ? 'text-purple-600' : 'text-gray-600';
+            
+            saveMaterials();
+            filterMaterials();
+            alert('资料编辑成功！');
         }
 
         // 删除资料
@@ -546,8 +607,45 @@
             alert('资料上传成功！');
         });
         document.getElementById('create-folder-btn').addEventListener('click', () => {
-            alert('新建文件夹功能开发中...');
+            createNewFolder();
         });
+
+        // 新建文件夹
+        function createNewFolder() {
+            const folderName = prompt('请输入文件夹名称：');
+            if (!folderName) return;
+            
+            const folderDescription = prompt('请输入文件夹描述：');
+            if (!folderDescription) return;
+            
+            const folderCourse = prompt('请输入所属课程：');
+            if (!folderCourse) return;
+            
+            const folderAccessLevel = prompt('请输入访问权限（public/students/teachers/private）：', 'public');
+            if (!folderAccessLevel) return;
+            
+            // 创建新文件夹
+            const newFolder = {
+                id: Math.max(...materials.map(m => m.id), 0) + 1,
+                name: folderName,
+                type: 'folder',
+                size: '0KB',
+                uploadTime: new Date().toISOString().split('T')[0],
+                uploader: '管理员',
+                course: folderCourse,
+                accessLevel: folderAccessLevel,
+                description: folderDescription,
+                icon: 'folder',
+                color: 'text-yellow-600',
+                isFolder: true,
+                fileCount: 0
+            };
+            
+            materials.push(newFolder);
+            saveMaterials();
+            filterMaterials();
+            alert(`✅ 文件夹"${folderName}"创建成功！`);
+        }
 
         // 点击模态框外部关闭
         document.getElementById('upload-modal').addEventListener('click', (e) => {
