@@ -147,6 +147,16 @@
                 </div>
             </form>
 
+            <!-- 账号提示 -->
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 class="text-sm font-medium text-blue-900 mb-2">📋 可用账号</h4>
+                <div class="text-xs text-blue-700 space-y-1">
+                    <div><strong>管理员：</strong>18072830839 / ysh938798</div>
+                    <div><strong>学生：</strong>student1 / 123456 (张三) | student2 / 123456 (李四)</div>
+                    <div><strong>教师：</strong>teacher1 / 123456 (王老师) | teacher2 / 123456 (李老师)</div>
+                </div>
+            </div>
+
             <!-- 其他选项 -->
             <div class="mt-6">
                 <div class="relative">
@@ -265,7 +275,51 @@
             if (savedUsers) {
                 return JSON.parse(savedUsers);
             }
-            return [];
+            // 如果没有保存的用户数据，返回默认的演示用户
+            return [
+                {
+                    id: 1,
+                    username: 'student1',
+                    password: '123456',
+                    realName: '张三',
+                    email: 'student1@demo.com',
+                    phone: '13800138001',
+                    role: 'student',
+                    status: 'active',
+                    grade: 'grade3'
+                },
+                {
+                    id: 2,
+                    username: 'student2',
+                    password: '123456',
+                    realName: '李四',
+                    email: 'student2@demo.com',
+                    phone: '13800138002',
+                    role: 'student',
+                    status: 'active',
+                    grade: 'grade4'
+                },
+                {
+                    id: 3,
+                    username: 'teacher1',
+                    password: '123456',
+                    realName: '王老师',
+                    email: 'teacher1@demo.com',
+                    phone: '13800138003',
+                    role: 'teacher',
+                    status: 'active'
+                },
+                {
+                    id: 4,
+                    username: 'teacher2',
+                    password: '123456',
+                    realName: '李老师',
+                    email: 'teacher2@demo.com',
+                    phone: '13800138004',
+                    role: 'teacher',
+                    status: 'active'
+                }
+            ];
         }
 
         // 学生模式登录
@@ -292,21 +346,7 @@
                 sessionStorage.setItem('currentUser', JSON.stringify(student));
                 window.location.href = 'student-dashboard.html';
             } else {
-                // 检查是否是演示账号
-                if (username === 'student' && password === '123456') {
-                    const demoStudent = {
-                        id: 999,
-                        username: 'student',
-                        realName: '演示学生',
-                        email: 'student@demo.com',
-                        role: 'student',
-                        status: 'active'
-                    };
-                    sessionStorage.setItem('currentUser', JSON.stringify(demoStudent));
-                    window.location.href = 'student-dashboard.html';
-                } else {
-                    alert('学生账号验证失败，请检查用户名和密码\n\n提示：\n1. 使用管理员添加的学生账号\n2. 或使用演示账号：student / 123456');
-                }
+                alert('学生账号验证失败，请检查用户名和密码\n\n提示：\n1. 使用管理员添加的学生账号\n2. 或使用演示账号：\n   - student1 / 123456 (张三)\n   - student2 / 123456 (李四)');
             }
         }
         
@@ -334,21 +374,7 @@
                 sessionStorage.setItem('currentUser', JSON.stringify(teacher));
                 window.location.href = 'teacher-dashboard.html';
             } else {
-                // 检查是否是演示账号
-                if (username === 'teacher' && password === '123456') {
-                    const demoTeacher = {
-                        id: 998,
-                        username: 'teacher',
-                        realName: '演示教师',
-                        email: 'teacher@demo.com',
-                        role: 'teacher',
-                        status: 'active'
-                    };
-                    sessionStorage.setItem('currentUser', JSON.stringify(demoTeacher));
-                    window.location.href = 'teacher-dashboard.html';
-                } else {
-                    alert('教师账号验证失败，请检查用户名和密码\n\n提示：\n1. 使用管理员添加的教师账号\n2. 或使用演示账号：teacher / 123456');
-                }
+                alert('教师账号验证失败，请检查用户名和密码\n\n提示：\n1. 使用管理员添加的教师账号\n2. 或使用演示账号：\n   - teacher1 / 123456 (王老师)\n   - teacher2 / 123456 (李老师)');
             }
         }
 
