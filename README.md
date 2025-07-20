@@ -1,6 +1,6 @@
-# 教育平台 - 登录页面
+# 云工坊 - 教育平台管理系统
 
-这是一个现代化的教育平台登录页面，支持学生、教师、管理员三种角色模式。
+这是一个现代化的教育平台管理系统，支持学生、教师、管理员三种角色模式，具备完整的用户管理、数据同步和跨设备访问功能。
 
 ## 功能特性
 
@@ -13,6 +13,9 @@
 - 🔗 第三方登录选项（微信、QQ）
 - 🔐 管理员账号验证（用户名：18072830839，密码：ysh938798）
 - 📊 管理员控制台（数据统计、用户管理、系统监控）
+- 🔄 GitHub自动同步（跨设备数据同步）
+- 📤 用户数据导入/导出功能
+- 🌐 GitHub Pages部署支持
 
 ## 快速开始
 
@@ -32,6 +35,15 @@ python -m http.server 8000
 ```
 
 然后在浏览器中访问 `http://localhost:8000`
+
+### 方法三：GitHub Pages部署（推荐）
+
+1. 创建GitHub仓库
+2. 上传网站文件
+3. 启用GitHub Pages
+4. 配置自动同步功能
+
+详细部署步骤请参考：[GitHub Pages 部署指南](GITHUB_PAGES_DEPLOY.md)
 
 ## 登录模式说明
 
@@ -136,12 +148,19 @@ web/
 ├── admin-materials.html    # 资料管理页面
 ├── admin-settings.html     # 系统设置页面
 ├── navigation.html         # 项目导航中心
+├── user-sync.html         # 用户数据同步页面
+├── github-sync.js         # GitHub自动同步脚本
+├── github-sync-manager.html # GitHub同步管理页面
 ├── test-data-persistence.html # 数据持久化测试页面
 ├── test-login.html         # 登录功能测试页面
 ├── debug-localStorage.html    # localStorage调试工具
+├── debug-login.html        # 登录调试页面
+├── quick-fix.js           # 快速修复脚本
 ├── start-server.bat        # Windows启动脚本
 ├── start-server.sh         # Linux/Mac启动脚本
 ├── README.md              # 项目说明
+├── GITHUB_PAGES_DEPLOY.md # GitHub Pages部署指南
+├── USER_SYNC_GUIDE.md     # 用户数据同步指南
 ├── package.json           # React版本配置（可选）
 ├── src/                   # React版本源码（可选）
 └── public/                # React版本静态资源（可选）
@@ -236,6 +255,30 @@ web/
 - 页面刷新后数据会自动加载
 - 删除数据时会同步清除localStorage
 - 首次访问时会初始化默认数据
+
+## GitHub自动同步功能
+
+### 功能特点
+- 🔄 **自动同步**: 使用GitHub Gist作为数据存储，支持多设备自动同步
+- 📱 **跨设备访问**: 在任何设备上访问网站都能获取最新数据
+- 🔒 **安全存储**: 数据加密存储在GitHub Gist中
+- ⚡ **智能合并**: 自动处理数据冲突，智能合并多设备数据
+- 🕐 **定时同步**: 支持定时自动同步，可设置同步间隔
+
+### 配置步骤
+1. 获取GitHub Personal Access Token（需要gist权限）
+2. 访问"GitHub自动同步"页面
+3. 输入Token并初始化同步
+4. 保存生成的Gist ID
+5. 在其他设备上使用相同的Token和Gist ID
+
+### 使用场景
+- 学校多台电脑使用同一套系统
+- 教师在家和学校之间同步数据
+- 学生在不同设备上访问学习资料
+- 管理员远程管理用户数据
+
+详细使用说明请参考：[用户数据同步指南](USER_SYNC_GUIDE.md)
 
 ## 联系信息
 

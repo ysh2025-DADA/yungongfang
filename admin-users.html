@@ -126,6 +126,10 @@
                                 <i data-lucide="download" class="h-4 w-4 mr-2"></i>
                                 导出用户
                             </button>
+                            <button id="import-users-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="upload" class="h-4 w-4 mr-2"></i>
+                                导入用户
+                            </button>
                         </div>
                         <div class="flex space-x-4">
                             <select id="role-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
@@ -326,6 +330,109 @@
         // 保存用户数据到localStorage
         function saveUsers() {
             localStorage.setItem('admin_users', JSON.stringify(users));
+            
+            // 尝试同步到GitHub
+            tryGitHubUpload();
+        }
+
+        // 尝试上传到GitHub
+        async function tryGitHubUpload() {
+            const gistId = localStorage.getItem('github_gist_id');
+            const token = localStorage.getItem('github_token');
+            
+            if (gistId && token) {
+                try {
+                    // 动态加载GitHub同步脚本
+                    if (!window.githubSync) {
+                        const script = document.createElement('script');
+                        script.src = 'github-sync.js';
+                        document.head.appendChild(script);
+                        
+                        await new Promise((resolve) => {
+                            script.onload = resolve;
+                        });
+                    }
+                    
+                    // 初始化并上传
+                    const result = await window.githubSync.initialize(token, gistId);
+                    if (result.success) {
+                        await window.githubSync.uploadData({ users: users, version: '1.0' });
+                        console.log('用户数据已同步到GitHub');
+                    }
+                } catch (error) {
+                    console.warn('GitHub同步失败:', error.message);
+                }
+            }
+        }
+
+        // 导出用户数据
+        function exportUsers() {
+            try {
+                const exportData = {
+                    version: '1.0',
+                    exportTime: new Date().toISOString(),
+                    users: users,
+                    totalCount: users.length
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `云工坊用户数据_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert(`✅ 用户数据导出成功！\n\n导出文件：云工坊用户数据_${new Date().toISOString().split('T')[0]}.json\n用户数量：${users.length}个\n\n请将此文件分享给其他电脑使用。`);
+            } catch (error) {
+                alert(`❌ 导出失败：${error.message}`);
+            }
+        }
+
+        // 导入用户数据
+        function importUsers() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importData = JSON.parse(e.target.result);
+                        
+                        if (!importData.users || !Array.isArray(importData.users)) {
+                            throw new Error('文件格式不正确，缺少用户数据');
+                        }
+                        
+                        if (confirm(`确定要导入用户数据吗？\n\n文件信息：\n- 用户数量：${importData.users.length}个\n- 导出时间：${importData.exportTime}\n\n这将覆盖当前的用户数据。`)) {
+                            // 合并用户数据，避免ID冲突
+                            const existingIds = new Set(users.map(u => u.id));
+                            const maxId = Math.max(...existingIds, 0);
+                            
+                            importData.users.forEach((user, index) => {
+                                if (existingIds.has(user.id)) {
+                                    user.id = maxId + index + 1;
+                                }
+                                existingIds.add(user.id);
+                            });
+                            
+                            users = [...users, ...importData.users];
+                            saveUsers();
+                            filterUsers();
+                            
+                            alert(`✅ 用户数据导入成功！\n\n导入用户：${importData.users.length}个\n当前总用户：${users.length}个`);
+                        }
+                    } catch (error) {
+                        alert(`❌ 导入失败：${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
         }
 
         let currentPage = 1;
@@ -560,7 +667,15 @@
             const exportBtn = document.getElementById('export-users-btn');
             if (exportBtn) {
                 exportBtn.addEventListener('click', () => {
-                    alert('导出功能开发中...');
+                    exportUsers();
+                });
+            }
+
+            // 导入按钮
+            const importBtn = document.getElementById('import-users-btn');
+            if (importBtn) {
+                importBtn.addEventListener('click', () => {
+                    importUsers();
                 });
             }
 

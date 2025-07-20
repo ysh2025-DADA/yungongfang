@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云工坊 - 用户数据同步</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🔄 云工坊 - 用户数据同步</h1>
+            <p class="text-gray-600">在不同电脑间同步用户数据，确保所有设备都能使用管理员添加的账号</p>
+        </div>
+
+        <!-- 当前状态 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">📊 当前数据状态</h2>
+            <div id="current-status" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="text-sm font-medium text-blue-900">本地用户数据</div>
+                    <div id="local-users-count" class="text-2xl font-bold text-blue-600">检查中...</div>
+                    <div class="text-xs text-blue-700">当前电脑存储的用户数量</div>
+                </div>
+                <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div class="text-sm font-medium text-green-900">默认用户</div>
+                    <div class="text-2xl font-bold text-green-600">4</div>
+                    <div class="text-xs text-green-700">系统默认演示用户</div>
+                </div>
+                <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div class="text-sm font-medium text-purple-900">管理员添加</div>
+                    <div id="admin-added-count" class="text-2xl font-bold text-purple-600">计算中...</div>
+                    <div class="text-xs text-purple-700">管理员额外添加的用户</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 同步操作 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- 导出数据 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">📤 导出用户数据</h3>
+                <p class="text-gray-600 mb-4">将当前电脑的所有用户数据导出为文件，可以分享给其他电脑使用。</p>
+                
+                <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="text-sm font-medium text-gray-900 mb-2">导出内容：</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• 所有用户信息（学生、教师）</li>
+                            <li>• 用户密码和状态</li>
+                            <li>• 注册时间和最后登录时间</li>
+                            <li>• 导出时间和版本信息</li>
+                        </ul>
+                    </div>
+                    
+                    <button onclick="exportUserData()" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center">
+                        <i data-lucide="download" class="h-5 w-5 mr-2"></i>
+                        导出用户数据
+                    </button>
+                </div>
+            </div>
+
+            <!-- 导入数据 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">📥 导入用户数据</h3>
+                <p class="text-gray-600 mb-4">从其他电脑导出的用户数据文件导入到当前电脑。</p>
+                
+                <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="text-sm font-medium text-gray-900 mb-2">导入说明：</div>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• 支持JSON格式的用户数据文件</li>
+                            <li>• 自动合并新用户，避免重复</li>
+                            <li>• 保留现有用户数据</li>
+                            <li>• 自动处理用户ID冲突</li>
+                        </ul>
+                    </div>
+                    
+                    <button onclick="importUserData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center">
+                        <i data-lucide="upload" class="h-5 w-5 mr-2"></i>
+                        导入用户数据
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 使用说明</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-2">🖥️ 在管理员电脑上：</h4>
+                    <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                        <li>添加新用户后，点击"导出用户数据"</li>
+                        <li>保存导出的JSON文件</li>
+                        <li>将文件分享给其他电脑（U盘、网盘等）</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-2">💻 在其他电脑上：</h4>
+                    <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                        <li>打开此同步页面</li>
+                        <li>点击"导入用户数据"</li>
+                        <li>选择从管理员电脑导出的JSON文件</li>
+                        <li>确认导入，即可使用新账号登录</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户列表预览 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">👥 当前用户列表</h3>
+            <div id="users-preview" class="space-y-2">
+                <div class="text-gray-500">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="text-center space-x-4">
+            <a href="admin-users.html" class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                <i data-lucide="users" class="h-5 w-5 mr-2"></i>
+                用户管理
+            </a>
+            <a href="index.html" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i data-lucide="log-in" class="h-5 w-5 mr-2"></i>
+                登录页面
+            </a>
+            <a href="navigation.html" class="inline-flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                <i data-lucide="navigation" class="h-5 w-5 mr-2"></i>
+                导航中心
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 从localStorage加载用户数据
+        function loadUsers() {
+            const savedUsers = localStorage.getItem('admin_users');
+            if (savedUsers) {
+                try {
+                    return JSON.parse(savedUsers);
+                } catch (error) {
+                    console.error('解析用户数据失败:', error);
+                    return [];
+                }
+            }
+            return [];
+        }
+
+        // 更新状态显示
+        function updateStatus() {
+            const users = loadUsers();
+            const defaultUsers = 4; // 默认用户数量
+            const adminAdded = Math.max(0, users.length - defaultUsers);
+            
+            document.getElementById('local-users-count').textContent = users.length;
+            document.getElementById('admin-added-count').textContent = adminAdded;
+            
+            // 更新用户列表预览
+            showUsersPreview(users);
+        }
+
+        // 显示用户列表预览
+        function showUsersPreview(users) {
+            const previewDiv = document.getElementById('users-preview');
+            
+            if (users.length === 0) {
+                previewDiv.innerHTML = '<div class="text-gray-500">暂无用户数据</div>';
+                return;
+            }
+            
+            previewDiv.innerHTML = users.map(user => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-xs font-medium text-blue-600">${user.realName ? user.realName.charAt(0) : user.username.charAt(0)}</span>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${user.realName}</div>
+                            <div class="text-xs text-gray-500">${user.username}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.role === 'student' ? 'bg-blue-100 text-blue-800' :
+                            user.role === 'teacher' ? 'bg-green-100 text-green-800' :
+                            'bg-purple-100 text-purple-800'
+                        }">
+                            ${user.role === 'student' ? '学生' : user.role === 'teacher' ? '教师' : '管理员'}
+                        </span>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${user.status === 'active' ? '正常' : '禁用'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 导出用户数据
+        function exportUserData() {
+            try {
+                const users = loadUsers();
+                
+                if (users.length === 0) {
+                    alert('❌ 没有用户数据可导出');
+                    return;
+                }
+                
+                const exportData = {
+                    version: '1.0',
+                    exportTime: new Date().toISOString(),
+                    users: users,
+                    totalCount: users.length,
+                    description: '云工坊用户数据导出文件'
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `云工坊用户数据_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert(`✅ 用户数据导出成功！\n\n导出文件：云工坊用户数据_${new Date().toISOString().split('T')[0]}.json\n用户数量：${users.length}个\n\n请将此文件分享给其他电脑使用。`);
+                
+            } catch (error) {
+                alert(`❌ 导出失败：${error.message}`);
+            }
+        }
+
+        // 导入用户数据
+        function importUserData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importData = JSON.parse(e.target.result);
+                        
+                        if (!importData.users || !Array.isArray(importData.users)) {
+                            throw new Error('文件格式不正确，缺少用户数据');
+                        }
+                        
+                        if (importData.users.length === 0) {
+                            throw new Error('导入文件中没有用户数据');
+                        }
+                        
+                        if (confirm(`确定要导入用户数据吗？\n\n文件信息：\n- 用户数量：${importData.users.length}个\n- 导出时间：${importData.exportTime}\n- 文件描述：${importData.description || '无'}\n\n这将合并到当前用户数据中。`)) {
+                            
+                            // 获取现有用户
+                            const existingUsers = loadUsers();
+                            const existingUsernames = new Set(existingUsers.map(u => u.username));
+                            
+                            // 过滤新用户（避免用户名重复）
+                            const newUsers = importData.users.filter(user => !existingUsernames.has(user.username));
+                            
+                            if (newUsers.length === 0) {
+                                alert('⚠️ 所有用户都已存在，没有新用户需要导入');
+                                return;
+                            }
+                            
+                            // 处理ID冲突
+                            const maxId = Math.max(...existingUsers.map(u => u.id), 0);
+                            newUsers.forEach((user, index) => {
+                                user.id = maxId + index + 1;
+                            });
+                            
+                            // 合并用户数据
+                            const mergedUsers = [...existingUsers, ...newUsers];
+                            localStorage.setItem('admin_users', JSON.stringify(mergedUsers));
+                            
+                            // 更新显示
+                            updateStatus();
+                            
+                            alert(`✅ 用户数据导入成功！\n\n导入新用户：${newUsers.length}个\n跳过重复用户：${importData.users.length - newUsers.length}个\n当前总用户：${mergedUsers.length}个`);
+                        }
+                    } catch (error) {
+                        alert(`❌ 导入失败：${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            updateStatus();
+        });
+    </script>
+</body>
+</html> 

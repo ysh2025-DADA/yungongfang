@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云工坊 - GitHub自动同步管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🔄 云工坊 - GitHub自动同步管理</h1>
+            <p class="text-gray-600">配置GitHub自动同步，实现跨设备数据自动同步</p>
+        </div>
+
+        <!-- 引入GitHub同步脚本 -->
+        <script src="github-sync.js"></script>
+
+        <!-- 当前状态 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">📊 同步状态</h2>
+            <div id="sync-status" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="text-sm font-medium text-blue-900">连接状态</div>
+                    <div id="connection-status" class="text-2xl font-bold text-blue-600">检查中...</div>
+                    <div class="text-xs text-blue-700">GitHub连接状态</div>
+                </div>
+                <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div class="text-sm font-medium text-green-900">自动同步</div>
+                    <div id="auto-sync-status" class="text-2xl font-bold text-green-600">检查中...</div>
+                    <div class="text-xs text-green-700">自动同步状态</div>
+                </div>
+                <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div class="text-sm font-medium text-purple-900">最后同步</div>
+                    <div id="last-sync-time" class="text-2xl font-bold text-purple-600">检查中...</div>
+                    <div class="text-xs text-purple-700">最后同步时间</div>
+                </div>
+                <div class="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                    <div class="text-sm font-medium text-orange-900">用户数量</div>
+                    <div id="user-count" class="text-2xl font-bold text-orange-600">检查中...</div>
+                    <div class="text-xs text-orange-700">同步的用户数量</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配置区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- GitHub配置 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">🔧 GitHub配置</h3>
+                
+                <div id="config-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Personal Access Token</label>
+                        <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">
+                            <a href="https://github.com/settings/tokens" target="_blank" class="text-blue-600 hover:underline">获取Token</a> 
+                            (需要gist权限)
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Gist ID (可选)</label>
+                        <input type="text" id="gist-id" placeholder="留空将创建新的Gist" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">如果已有Gist，请输入ID；否则将创建新的</p>
+                    </div>
+                    
+                    <button onclick="initializeSync()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        初始化同步
+                    </button>
+                </div>
+                
+                <div id="connected-info" class="hidden space-y-4">
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div class="text-sm font-medium text-green-900">✅ 已连接</div>
+                        <div class="text-xs text-green-700 mt-1">Gist ID: <span id="current-gist-id"></span></div>
+                    </div>
+                    
+                    <button onclick="disconnectSync()" class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        断开连接
+                    </button>
+                </div>
+            </div>
+
+            <!-- 同步控制 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">⚙️ 同步控制</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">自动同步间隔</label>
+                        <select id="sync-interval" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="1">1分钟</option>
+                            <option value="5" selected>5分钟</option>
+                            <option value="10">10分钟</option>
+                            <option value="30">30分钟</option>
+                            <option value="60">1小时</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="startAutoSync()" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            启动自动同步
+                        </button>
+                        <button onclick="stopAutoSync()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            停止自动同步
+                        </button>
+                    </div>
+                    
+                    <button onclick="manualSync()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        立即同步
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 使用说明</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-2">🔑 获取GitHub Token：</h4>
+                    <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                        <li>访问 <a href="https://github.com/settings/tokens" target="_blank" class="text-blue-600 hover:underline">GitHub Token设置</a></li>
+                        <li>点击"Generate new token"</li>
+                        <li>选择"Gist"权限</li>
+                        <li>复制生成的Token</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-2">🔄 自动同步功能：</h4>
+                    <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                        <li>自动检测数据变化</li>
+                        <li>智能合并多设备数据</li>
+                        <li>支持离线使用</li>
+                        <li>数据安全加密存储</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 同步日志 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 同步日志</h3>
+            <div id="sync-log" class="bg-gray-100 p-4 rounded-lg h-64 overflow-y-auto text-sm font-mono">
+                <div class="text-gray-500">等待操作...</div>
+            </div>
+            <div class="mt-4 flex space-x-2">
+                <button onclick="clearLog()" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700">
+                    清除日志
+                </button>
+                <button onclick="exportLog()" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">
+                    导出日志
+                </button>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="text-center space-x-4">
+            <a href="admin-users.html" class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                <i data-lucide="users" class="h-5 w-5 mr-2"></i>
+                用户管理
+            </a>
+            <a href="user-sync.html" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i data-lucide="refresh-cw" class="h-5 w-5 mr-2"></i>
+                手动同步
+            </a>
+            <a href="navigation.html" class="inline-flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                <i data-lucide="navigation" class="h-5 w-5 mr-2"></i>
+                导航中心
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 添加日志
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('sync-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-blue-600',
+                success: 'text-green-600',
+                error: 'text-red-600',
+                warning: 'text-yellow-600'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `mb-1 ${colors[type]}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // 清除日志
+        function clearLog() {
+            document.getElementById('sync-log').innerHTML = '<div class="text-gray-500">日志已清除</div>';
+        }
+
+        // 导出日志
+        function exportLog() {
+            const logContent = document.getElementById('sync-log').innerText;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `github-sync-log-${new Date().toISOString().split('T')[0]}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 更新状态显示
+        function updateStatus() {
+            const status = window.githubSync.getStatus();
+            const users = window.githubSync.getLocalUsers();
+            
+            // 连接状态
+            document.getElementById('connection-status').textContent = status.isInitialized ? '已连接' : '未连接';
+            document.getElementById('connection-status').className = status.isInitialized ? 'text-2xl font-bold text-green-600' : 'text-2xl font-bold text-red-600';
+            
+            // 自动同步状态
+            document.getElementById('auto-sync-status').textContent = status.isAutoSyncActive ? '运行中' : '已停止';
+            document.getElementById('auto-sync-status').className = status.isAutoSyncActive ? 'text-2xl font-bold text-green-600' : 'text-2xl font-bold text-gray-600';
+            
+            // 最后同步时间
+            if (status.lastSyncTime) {
+                document.getElementById('last-sync-time').textContent = status.lastSyncTime.toLocaleTimeString();
+            } else {
+                document.getElementById('last-sync-time').textContent = '从未同步';
+            }
+            
+            // 用户数量
+            document.getElementById('user-count').textContent = users.length;
+            
+            // 显示/隐藏配置表单
+            if (status.isInitialized) {
+                document.getElementById('config-form').classList.add('hidden');
+                document.getElementById('connected-info').classList.remove('hidden');
+                document.getElementById('current-gist-id').textContent = status.gistId;
+            } else {
+                document.getElementById('config-form').classList.remove('hidden');
+                document.getElementById('connected-info').classList.add('hidden');
+            }
+        }
+
+        // 初始化同步
+        async function initializeSync() {
+            const token = document.getElementById('github-token').value.trim();
+            const gistId = document.getElementById('gist-id').value.trim();
+            
+            if (!token) {
+                alert('请输入GitHub Personal Access Token');
+                return;
+            }
+            
+            addLog('正在初始化GitHub同步...', 'info');
+            
+            try {
+                const result = await window.githubSync.initialize(token, gistId || null);
+                
+                if (result.success) {
+                    addLog(`GitHub同步初始化成功！Gist ID: ${result.gistId}`, 'success');
+                    alert(`✅ GitHub同步初始化成功！\n\nGist ID: ${result.gistId}\n\n请保存此ID，以便在其他设备上使用。`);
+                    updateStatus();
+                } else {
+                    addLog(`初始化失败: ${result.error}`, 'error');
+                    alert(`❌ 初始化失败: ${result.error}`);
+                }
+            } catch (error) {
+                addLog(`初始化错误: ${error.message}`, 'error');
+                alert(`❌ 初始化错误: ${error.message}`);
+            }
+        }
+
+        // 断开连接
+        function disconnectSync() {
+            if (confirm('确定要断开GitHub同步连接吗？')) {
+                window.githubSync.disconnect();
+                addLog('已断开GitHub同步连接', 'warning');
+                updateStatus();
+            }
+        }
+
+        // 启动自动同步
+        function startAutoSync() {
+            const interval = parseInt(document.getElementById('sync-interval').value);
+            window.githubSync.startAutoSync(interval);
+            addLog(`自动同步已启动，间隔: ${interval}分钟`, 'success');
+            updateStatus();
+        }
+
+        // 停止自动同步
+        function stopAutoSync() {
+            window.githubSync.stopAutoSync();
+            addLog('自动同步已停止', 'warning');
+            updateStatus();
+        }
+
+        // 手动同步
+        async function manualSync() {
+            addLog('开始手动同步...', 'info');
+            
+            try {
+                const users = await window.githubSync.syncUsers();
+                addLog(`手动同步成功！同步了 ${users.length} 个用户`, 'success');
+                updateStatus();
+            } catch (error) {
+                addLog(`手动同步失败: ${error.message}`, 'error');
+                alert(`❌ 手动同步失败: ${error.message}`);
+            }
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            addLog('GitHub同步管理页面已加载', 'info');
+            updateStatus();
+            
+            // 如果已连接，显示当前Gist ID
+            const status = window.githubSync.getStatus();
+            if (status.isInitialized) {
+                document.getElementById('current-gist-id').textContent = status.gistId;
+            }
+        });
+    </script>
+</body>
+</html> 

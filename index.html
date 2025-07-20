@@ -155,10 +155,14 @@
                     <div><strong>学生：</strong>student1 / 123456 (张三) | student2 / 123456 (李四)</div>
                     <div><strong>教师：</strong>teacher1 / 123456 (王老师) | teacher2 / 123456 (李老师)</div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-blue-200">
+                <div class="mt-3 pt-3 border-t border-blue-200 space-y-2">
                     <button onclick="quickFix()" class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded transition-colors">
                         🔧 快速修复登录问题
                     </button>
+                    <div class="text-xs text-blue-600">
+                        💡 无法使用管理员添加的账号？请访问 
+                        <a href="user-sync.html" class="underline hover:text-blue-800">用户数据同步</a> 页面
+                    </div>
                 </div>
             </div>
 
@@ -278,7 +282,15 @@
         function loadUsers() {
             const savedUsers = localStorage.getItem('admin_users');
             if (savedUsers) {
-                return JSON.parse(savedUsers);
+                try {
+                    const users = JSON.parse(savedUsers);
+                    console.log('从localStorage加载用户数据:', users.length, '个用户');
+                    return users;
+                } catch (error) {
+                    console.error('解析localStorage用户数据失败:', error);
+                    // 如果数据损坏，清除并重新初始化
+                    localStorage.removeItem('admin_users');
+                }
             }
             
             // 如果没有保存的用户数据，创建默认的演示用户并保存到localStorage
@@ -340,6 +352,44 @@
             console.log('已初始化默认用户数据:', defaultUsers);
             
             return defaultUsers;
+        }
+
+        // 尝试从GitHub同步数据
+        async function tryGitHubSync() {
+            // 检查是否有GitHub同步配置
+            const gistId = localStorage.getItem('github_gist_id');
+            const token = localStorage.getItem('github_token');
+            
+            if (gistId && token) {
+                try {
+                    console.log('检测到GitHub同步配置，尝试同步数据...');
+                    
+                    // 动态加载GitHub同步脚本
+                    if (!window.githubSync) {
+                        const script = document.createElement('script');
+                        script.src = 'github-sync.js';
+                        document.head.appendChild(script);
+                        
+                        // 等待脚本加载完成
+                        await new Promise((resolve) => {
+                            script.onload = resolve;
+                        });
+                    }
+                    
+                    // 初始化同步
+                    const result = await window.githubSync.initialize(token, gistId);
+                    if (result.success) {
+                        // 尝试同步数据
+                        const users = await window.githubSync.syncUsers();
+                        console.log('GitHub同步成功，获取到', users.length, '个用户');
+                        return users;
+                    }
+                } catch (error) {
+                    console.warn('GitHub同步失败，使用本地数据:', error.message);
+                }
+            }
+            
+            return null;
         }
 
         // 学生模式登录
@@ -487,11 +537,14 @@
         }
 
         // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('页面加载完成，初始化用户数据...');
             
+            // 尝试GitHub同步
+            const syncedUsers = await tryGitHubSync();
+            
             // 确保默认用户数据存在
-            const users = loadUsers();
+            const users = syncedUsers || loadUsers();
             console.log('初始化后的用户数据:', users);
             
             // 显示当前可用的账号信息
