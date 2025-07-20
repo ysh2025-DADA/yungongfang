@@ -181,6 +181,50 @@
         // 初始化Lucide图标
         lucide.createIcons();
 
+        // 检查管理员权限
+        function checkAdminPermission() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                showPermissionError('请先登录管理员账号');
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(currentUser);
+                if (user.role !== 'admin') {
+                    showPermissionError('只有管理员才能访问此页面');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                showPermissionError('用户信息解析失败，请重新登录');
+                return false;
+            }
+        }
+
+        // 显示权限错误
+        function showPermissionError(message) {
+            const container = document.querySelector('.max-w-6xl');
+            container.innerHTML = `
+                <div class="text-center py-16">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="shield-x" class="h-8 w-8 text-red-600"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-4">访问被拒绝</h1>
+                    <p class="text-gray-600 mb-8">${message}</p>
+                    <div class="space-x-4">
+                        <button onclick="window.location.href='index.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            返回登录页面
+                        </button>
+                        <button onclick="window.location.href='admin-dashboard.html'" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            管理员控制台
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
         // 添加日志
         function addLog(message, type = 'info') {
             const logDiv = document.getElementById('sync-log');
@@ -253,6 +297,8 @@
 
         // 初始化同步
         async function initializeSync() {
+            if (!checkAdminPermission()) return;
+            
             const token = document.getElementById('github-token').value.trim();
             const gistId = document.getElementById('gist-id').value.trim();
             
@@ -282,6 +328,8 @@
 
         // 断开连接
         function disconnectSync() {
+            if (!checkAdminPermission()) return;
+            
             if (confirm('确定要断开GitHub同步连接吗？')) {
                 window.githubSync.disconnect();
                 addLog('已断开GitHub同步连接', 'warning');
@@ -291,6 +339,8 @@
 
         // 启动自动同步
         function startAutoSync() {
+            if (!checkAdminPermission()) return;
+            
             const interval = parseInt(document.getElementById('sync-interval').value);
             window.githubSync.startAutoSync(interval);
             addLog(`自动同步已启动，间隔: ${interval}分钟`, 'success');
@@ -299,6 +349,8 @@
 
         // 停止自动同步
         function stopAutoSync() {
+            if (!checkAdminPermission()) return;
+            
             window.githubSync.stopAutoSync();
             addLog('自动同步已停止', 'warning');
             updateStatus();
@@ -306,6 +358,8 @@
 
         // 手动同步
         async function manualSync() {
+            if (!checkAdminPermission()) return;
+            
             addLog('开始手动同步...', 'info');
             
             try {
@@ -320,6 +374,11 @@
 
         // 页面加载时初始化
         window.addEventListener('load', function() {
+            // 检查管理员权限
+            if (!checkAdminPermission()) {
+                return;
+            }
+            
             addLog('GitHub同步管理页面已加载', 'info');
             updateStatus();
             

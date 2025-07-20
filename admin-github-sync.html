@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云工坊 - 管理员GitHub同步中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🔄 管理员GitHub同步中心</h1>
+            <p class="text-gray-600">配置和管理GitHub自动同步功能，实现跨设备数据同步</p>
+        </div>
+
+        <!-- 权限检查 -->
+        <div id="permission-check" class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <div class="flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+                <span class="text-gray-600">正在验证管理员权限...</span>
+            </div>
+        </div>
+
+        <!-- 管理员内容 -->
+        <div id="admin-content" class="hidden">
+            <!-- 用户数据同步提示 -->
+            <div class="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start">
+                    <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                        <span class="text-yellow-600 text-sm">💡</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-blue-800">
+                            无法使用管理员添加的账号？请访问 
+                            <a href="user-sync.html" class="underline hover:text-blue-900 font-medium">用户数据同步</a> 页面
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 当前状态 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">📊 同步状态概览</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="text-sm font-medium text-blue-900">GitHub连接</div>
+                        <div id="github-status" class="text-2xl font-bold text-blue-600">检查中...</div>
+                        <div class="text-xs text-blue-700">GitHub同步状态</div>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div class="text-sm font-medium text-green-900">用户数据</div>
+                        <div id="user-count" class="text-2xl font-bold text-green-600">检查中...</div>
+                        <div class="text-xs text-green-700">同步的用户数量</div>
+                    </div>
+                    <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <div class="text-sm font-medium text-purple-900">最后同步</div>
+                        <div id="last-sync" class="text-2xl font-bold text-purple-600">检查中...</div>
+                        <div class="text-xs text-purple-700">最后同步时间</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能模块 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- GitHub配置 -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">🔧 GitHub配置管理</h3>
+                    <p class="text-gray-600 mb-4">配置GitHub Personal Access Token，设置自动同步功能。</p>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 class="font-medium text-blue-900 mb-2">配置步骤：</h4>
+                            <ol class="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                                <li>获取GitHub Personal Access Token</li>
+                                <li>配置Token和Gist ID</li>
+                                <li>初始化同步功能</li>
+                                <li>启动自动同步</li>
+                            </ol>
+                        </div>
+                        
+                        <button onclick="window.location.href='github-sync-manager.html'" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            进入GitHub同步管理
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Token配置指南 -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 Token配置指南</h3>
+                    <p class="text-gray-600 mb-4">详细的GitHub Token获取和配置指南，解决常见问题。</p>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                            <h4 class="font-medium text-green-900 mb-2">包含内容：</h4>
+                            <ul class="text-sm text-green-700 space-y-1 list-disc list-inside">
+                                <li>Token获取详细步骤</li>
+                                <li>权限配置说明</li>
+                                <li>故障排除指南</li>
+                                <li>Token测试工具</li>
+                            </ul>
+                        </div>
+                        
+                        <button onclick="window.location.href='github-token-guide.html'" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            查看配置指南
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">⚡ 快速操作</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="window.location.href='test-github-sync.html'" class="p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
+                        <div class="flex items-center">
+                            <i data-lucide="test-tube" class="h-6 w-6 text-purple-600 mr-3"></i>
+                            <div>
+                                <div class="font-medium text-purple-900">同步测试</div>
+                                <div class="text-sm text-purple-700">测试GitHub同步功能</div>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <button onclick="window.location.href='user-sync.html'" class="p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
+                        <div class="flex items-center">
+                            <i data-lucide="refresh-cw" class="h-6 w-6 text-orange-600 mr-3"></i>
+                            <div>
+                                <div class="font-medium text-orange-900">手动同步</div>
+                                <div class="text-sm text-orange-700">手动导入导出数据</div>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <button onclick="window.location.href='admin-dashboard.html'" class="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                        <div class="flex items-center">
+                            <i data-lucide="layout-dashboard" class="h-6 w-6 text-blue-600 mr-3"></i>
+                            <div>
+                                <div class="font-medium text-blue-900">控制台</div>
+                                <div class="text-sm text-blue-700">返回管理员控制台</div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 使用说明 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">📖 使用说明</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">🔄 自动同步流程：</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>配置GitHub Token和Gist</li>
+                            <li>初始化同步功能</li>
+                            <li>启动自动同步</li>
+                            <li>在其他设备上使用相同配置</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-2">🔒 安全提醒：</h4>
+                        <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                            <li>Token仅管理员可见</li>
+                            <li>定期更新Token</li>
+                            <li>不要分享Token</li>
+                            <li>使用最小权限原则</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 权限错误 -->
+        <div id="permission-error" class="hidden">
+            <div class="text-center py-16">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="shield-x" class="h-8 w-8 text-red-600"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-4">访问被拒绝</h1>
+                <p class="text-gray-600 mb-8">只有管理员才能访问GitHub同步功能</p>
+                <div class="space-x-4">
+                    <button onclick="window.location.href='index.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        返回登录页面
+                    </button>
+                    <button onclick="window.location.href='admin-dashboard.html'" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        管理员控制台
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 返回按钮 -->
+        <div class="text-center">
+            <button onclick="window.location.href='admin-dashboard.html'" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                返回管理员控制台
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 检查管理员权限
+        function checkAdminPermission() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                showPermissionError('请先登录管理员账号');
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(currentUser);
+                if (user.role !== 'admin') {
+                    showPermissionError('只有管理员才能访问此功能');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                showPermissionError('用户信息解析失败，请重新登录');
+                return false;
+            }
+        }
+
+        // 显示权限错误
+        function showPermissionError(message) {
+            document.getElementById('permission-check').classList.add('hidden');
+            document.getElementById('admin-content').classList.add('hidden');
+            document.getElementById('permission-error').classList.remove('hidden');
+            
+            const errorMessage = document.querySelector('#permission-error p');
+            if (errorMessage) {
+                errorMessage.textContent = message;
+            }
+        }
+
+        // 显示管理员内容
+        function showAdminContent() {
+            document.getElementById('permission-check').classList.add('hidden');
+            document.getElementById('permission-error').classList.add('hidden');
+            document.getElementById('admin-content').classList.remove('hidden');
+            
+            // 更新状态信息
+            updateStatusInfo();
+        }
+
+        // 更新状态信息
+        function updateStatusInfo() {
+            // 检查GitHub同步状态
+            const gistId = localStorage.getItem('github_gist_id');
+            const token = localStorage.getItem('github_token');
+            
+            if (gistId && token) {
+                document.getElementById('github-status').textContent = '已连接';
+                document.getElementById('github-status').className = 'text-2xl font-bold text-green-600';
+            } else {
+                document.getElementById('github-status').textContent = '未连接';
+                document.getElementById('github-status').className = 'text-2xl font-bold text-red-600';
+            }
+            
+            // 获取用户数量
+            const savedUsers = localStorage.getItem('admin_users');
+            if (savedUsers) {
+                try {
+                    const users = JSON.parse(savedUsers);
+                    document.getElementById('user-count').textContent = users.length;
+                } catch (error) {
+                    document.getElementById('user-count').textContent = '0';
+                }
+            } else {
+                document.getElementById('user-count').textContent = '0';
+            }
+            
+            // 最后同步时间
+            const lastSync = localStorage.getItem('github_last_sync');
+            if (lastSync) {
+                document.getElementById('last-sync').textContent = new Date(lastSync).toLocaleTimeString();
+            } else {
+                document.getElementById('last-sync').textContent = '从未同步';
+            }
+        }
+
+        // 页面加载时检查权限
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (checkAdminPermission()) {
+                    showAdminContent();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

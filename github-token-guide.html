@@ -289,8 +289,54 @@
         // 初始化Lucide图标
         lucide.createIcons();
 
+        // 检查管理员权限
+        function checkAdminPermission() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                showPermissionError('请先登录管理员账号');
+                return false;
+            }
+            
+            try {
+                const user = JSON.parse(currentUser);
+                if (user.role !== 'admin') {
+                    showPermissionError('只有管理员才能访问此页面');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                showPermissionError('用户信息解析失败，请重新登录');
+                return false;
+            }
+        }
+
+        // 显示权限错误
+        function showPermissionError(message) {
+            const container = document.querySelector('.max-w-6xl');
+            container.innerHTML = `
+                <div class="text-center py-16">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="shield-x" class="h-8 w-8 text-red-600"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-4">访问被拒绝</h1>
+                    <p class="text-gray-600 mb-8">${message}</p>
+                    <div class="space-x-4">
+                        <button onclick="window.location.href='index.html'" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            返回登录页面
+                        </button>
+                        <button onclick="window.location.href='admin-dashboard.html'" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                            管理员控制台
+                        </button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
         // 测试Token有效性
         async function testToken() {
+            if (!checkAdminPermission()) return;
+            
             const token = document.getElementById('test-token').value.trim();
             const resultDiv = document.getElementById('test-result');
             
@@ -344,6 +390,13 @@
                 resultDiv.innerHTML = `<div class="p-4 bg-red-50 border border-red-200 rounded-lg"><p class="text-red-700">❌ 测试失败: ${error.message}</p></div>`;
             }
         }
+
+        // 页面加载时检查权限
+        window.addEventListener('load', function() {
+            if (!checkAdminPermission()) {
+                return;
+            }
+        });
     </script>
 </body>
 </html> 
