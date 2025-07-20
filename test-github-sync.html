@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub同步测试页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🔧 GitHub同步功能测试</h1>
+            <p class="text-gray-600">测试GitHub自动同步功能是否正常工作</p>
+        </div>
+
+        <!-- 文件检查 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">📁 文件检查</h2>
+            <div id="file-check" class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <span class="font-medium">GitHub同步脚本</span>
+                    <span id="github-sync-status" class="text-gray-500">检查中...</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <span class="font-medium">GitHub同步管理页面</span>
+                    <span id="github-manager-status" class="text-gray-500">检查中...</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <span class="font-medium">导航页面</span>
+                    <span id="navigation-status" class="text-gray-500">检查中...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速访问 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">🚀 快速访问</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="testGitHubSync()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    测试GitHub同步
+                </button>
+                <button onclick="window.location.href='github-sync-manager.html'" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    打开GitHub同步管理
+                </button>
+                <button onclick="window.location.href='navigation.html'" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    打开导航中心
+                </button>
+            </div>
+        </div>
+
+        <!-- 测试结果 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">📊 测试结果</h2>
+            <div id="test-results" class="space-y-4">
+                <div class="text-gray-500">点击"测试GitHub同步"按钮开始测试...</div>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">📋 使用说明</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">如果找不到GitHub自动同步页面：</h3>
+                    <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                        <li>确保您是通过Web服务器访问网站（不是直接打开HTML文件）</li>
+                        <li>使用Python启动本地服务器：<code class="bg-gray-100 px-2 py-1 rounded">python -m http.server 8000</code></li>
+                        <li>在浏览器中访问：<code class="bg-gray-100 px-2 py-1 rounded">http://localhost:8000</code></li>
+                        <li>点击"导航中心" → "GitHub自动同步"</li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">直接访问链接：</h3>
+                    <div class="space-y-2">
+                        <a href="github-sync-manager.html" class="block text-blue-600 hover:underline">🔗 GitHub自动同步管理页面</a>
+                        <a href="navigation.html" class="block text-blue-600 hover:underline">🔗 导航中心</a>
+                        <a href="index.html" class="block text-blue-600 hover:underline">🔗 登录页面</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 返回按钮 -->
+        <div class="text-center">
+            <button onclick="window.location.href='index.html'" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                返回登录页面
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 检查文件是否存在
+        async function checkFiles() {
+            const files = [
+                { name: 'GitHub同步脚本', path: 'github-sync.js' },
+                { name: 'GitHub同步管理页面', path: 'github-sync-manager.html' },
+                { name: '导航页面', path: 'navigation.html' }
+            ];
+
+            for (const file of files) {
+                try {
+                    const response = await fetch(file.path, { method: 'HEAD' });
+                    const statusElement = document.getElementById(file.name === 'GitHub同步脚本' ? 'github-sync-status' : 
+                                                               file.name === 'GitHub同步管理页面' ? 'github-manager-status' : 'navigation-status');
+                    
+                    if (response.ok) {
+                        statusElement.textContent = '✅ 文件存在';
+                        statusElement.className = 'text-green-600 font-medium';
+                    } else {
+                        statusElement.textContent = '❌ 文件不存在';
+                        statusElement.className = 'text-red-600 font-medium';
+                    }
+                } catch (error) {
+                    const statusElement = document.getElementById(file.name === 'GitHub同步脚本' ? 'github-sync-status' : 
+                                                               file.name === 'GitHub同步管理页面' ? 'github-manager-status' : 'navigation-status');
+                    statusElement.textContent = '❌ 无法访问';
+                    statusElement.className = 'text-red-600 font-medium';
+                }
+            }
+        }
+
+        // 测试GitHub同步功能
+        async function testGitHubSync() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="text-blue-600">正在测试GitHub同步功能...</div>';
+
+            try {
+                // 检查GitHub同步脚本是否加载
+                if (typeof window.githubSync === 'undefined') {
+                    // 尝试加载脚本
+                    const script = document.createElement('script');
+                    script.src = 'github-sync.js';
+                    document.head.appendChild(script);
+                    
+                    await new Promise((resolve, reject) => {
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        setTimeout(reject, 5000); // 5秒超时
+                    });
+                }
+
+                // 检查GitHub同步状态
+                const status = window.githubSync.getStatus();
+                
+                let resultHTML = '<div class="space-y-2">';
+                resultHTML += `<div class="p-3 bg-blue-50 rounded-lg"><strong>初始化状态:</strong> ${status.isInitialized ? '✅ 已初始化' : '❌ 未初始化'}</div>`;
+                resultHTML += `<div class="p-3 bg-blue-50 rounded-lg"><strong>Token状态:</strong> ${status.hasToken ? '✅ 已配置' : '❌ 未配置'}</div>`;
+                resultHTML += `<div class="p-3 bg-blue-50 rounded-lg"><strong>Gist ID:</strong> ${status.gistId || '未设置'}</div>`;
+                resultHTML += `<div class="p-3 bg-blue-50 rounded-lg"><strong>自动同步:</strong> ${status.isAutoSyncActive ? '✅ 运行中' : '❌ 已停止'}</div>`;
+                resultHTML += `<div class="p-3 bg-blue-50 rounded-lg"><strong>最后同步:</strong> ${status.lastSyncTime ? status.lastSyncTime.toLocaleString() : '从未同步'}</div>`;
+                resultHTML += '</div>';
+
+                if (!status.isInitialized) {
+                    resultHTML += '<div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">';
+                    resultHTML += '<h4 class="font-medium text-yellow-800 mb-2">下一步操作：</h4>';
+                    resultHTML += '<ol class="text-sm text-yellow-700 space-y-1 list-decimal list-inside">';
+                    resultHTML += '<li>点击"打开GitHub同步管理"按钮</li>';
+                    resultHTML += '<li>获取GitHub Personal Access Token</li>';
+                    resultHTML += '<li>在管理页面中配置Token</li>';
+                    resultHTML += '<li>初始化同步功能</li>';
+                    resultHTML += '</ol>';
+                    resultHTML += '</div>';
+                }
+
+                resultsDiv.innerHTML = resultHTML;
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h4 class="font-medium text-red-800 mb-2">测试失败：</h4>
+                    <p class="text-red-700">${error.message}</p>
+                    <p class="text-red-700 mt-2">请确保您通过Web服务器访问网站，而不是直接打开HTML文件。</p>
+                </div>`;
+            }
+        }
+
+        // 页面加载时检查文件
+        window.addEventListener('load', function() {
+            checkFiles();
+        });
+    </script>
+</body>
+</html> 
