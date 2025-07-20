@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云工坊 - 成长记录管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background-color: rgba(139, 92, 246, 0.1); }
+        .sidebar-item.active { background-color: rgba(139, 92, 246, 0.2); border-right: 3px solid #8b5cf6; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 0; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .growth-card { transition: all 0.2s ease; }
+        .growth-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .achievement-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .progress-bar { transition: width 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">云工坊</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">管理员：18072830839</span>
+                    <button onclick="window.location.href='index.html'" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">退出登录</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex h-screen bg-gray-50">
+        <!-- 侧边栏 -->
+        <div class="w-64 bg-white shadow-sm">
+            <div class="p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-dashboard.html'">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-3"></i>控制台概览
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-users.html'">
+                        <i data-lucide="users" class="h-5 w-5 mr-3"></i>用户管理
+                    </div>
+                    <div class="sidebar-item active flex items-center px-3 py-2 text-sm font-medium text-purple-700 rounded-lg cursor-pointer">
+                        <i data-lucide="trending-up" class="h-5 w-5 mr-3"></i>成长记录
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-attendance.html'">
+                        <i data-lucide="clock" class="h-5 w-5 mr-3"></i>签到签退
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
+                        <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>资料管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-warehouse.html'">
+                        <i data-lucide="database" class="h-5 w-5 mr-3"></i>仓库管理
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-statistics.html'">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5 mr-3"></i>数据统计
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-settings.html'">
+                        <i data-lucide="settings" class="h-5 w-5 mr-3"></i>系统设置
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                <!-- 页面标题 -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">成长记录管理</h1>
+                    <p class="text-gray-600">管理学生的成长记录、学习进度、成就等</p>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-100 rounded-lg">
+                                <i data-lucide="users" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">总学生数</p>
+                                <p class="text-2xl font-bold text-gray-900">1,089</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 rounded-lg">
+                                <i data-lucide="trending-up" class="h-6 w-6 text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">成长记录</p>
+                                <p class="text-2xl font-bold text-gray-900">2,456</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <i data-lucide="award" class="h-6 w-6 text-purple-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">成就数量</p>
+                                <p class="text-2xl font-bold text-gray-900">156</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm p-6 border">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-orange-100 rounded-lg">
+                                <i data-lucide="target" class="h-6 w-6 text-orange-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">目标完成率</p>
+                                <p class="text-2xl font-bold text-gray-900">78%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作栏 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                        <div class="flex space-x-4">
+                            <button id="add-record-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="plus" class="h-4 w-4 mr-2"></i>添加记录
+                            </button>
+                            <button id="export-records-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="download" class="h-4 w-4 mr-2"></i>导出记录
+                            </button>
+                            <button id="batch-edit-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                                <i data-lucide="edit" class="h-4 w-4 mr-2"></i>批量编辑
+                            </button>
+                        </div>
+                        <div class="flex space-x-4">
+                            <select id="grade-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">所有年级</option>
+                                <option value="grade1">一年级</option>
+                                <option value="grade2">二年级</option>
+                                <option value="grade3">三年级</option>
+                                <option value="grade4">四年级</option>
+                                <option value="grade5">五年级</option>
+                                <option value="grade6">六年级</option>
+                            </select>
+                            <select id="category-filter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="">所有类型</option>
+                                <option value="academic">学业成绩</option>
+                                <option value="behavior">行为表现</option>
+                                <option value="activity">活动参与</option>
+                                <option value="achievement">成就获得</option>
+                            </select>
+                            <div class="relative">
+                                <input type="text" id="search-records" placeholder="搜索学生..." class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-64">
+                                <i data-lucide="search" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成长记录列表 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="growth-records-grid">
+                    <!-- 成长记录卡片将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-white rounded-lg shadow-sm border mt-6 p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span id="start-index">1</span> 到 <span id="end-index">12</span> 条，共 <span id="total-count">0</span> 条记录
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                上一页
+                            </button>
+                            <span id="current-page" class="px-3 py-1 bg-purple-600 text-white rounded text-sm">1</span>
+                            <button id="next-page" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑记录模态框 -->
+    <div id="record-modal" class="modal">
+        <div class="modal-content">
+            <div class="bg-purple-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 id="modal-title" class="text-lg font-semibold">添加成长记录</h3>
+            </div>
+            <form id="record-form" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">学生姓名</label>
+                        <select id="student-select" name="studentId" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">选择学生</option>
+                            <option value="1">张三</option>
+                            <option value="2">李四</option>
+                            <option value="3">王五</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">记录类型</label>
+                        <select id="record-type" name="type" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="">选择类型</option>
+                            <option value="academic">学业成绩</option>
+                            <option value="behavior">行为表现</option>
+                            <option value="activity">活动参与</option>
+                            <option value="achievement">成就获得</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">记录日期</label>
+                        <input type="date" id="record-date" name="date" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">评分</label>
+                        <input type="number" id="record-score" name="score" min="0" max="100" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="0-100">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">记录标题</label>
+                    <input type="text" id="record-title" name="title" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">详细描述</label>
+                    <textarea id="record-description" name="description" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签</label>
+                    <input type="text" id="record-tags" name="tags" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="用逗号分隔多个标签">
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button type="button" id="cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Lucide图标
+        lucide.createIcons();
+
+        // 成长记录数据管理
+        let growthRecords = [];
+
+        // 从localStorage加载成长记录数据
+        function loadGrowthRecords() {
+            const savedRecords = localStorage.getItem('admin_growthRecords');
+            if (savedRecords) {
+                growthRecords = JSON.parse(savedRecords);
+            } else {
+                // 初始化默认成长记录数据
+                growthRecords = [
+                    {
+                        id: 1,
+                        studentId: 1,
+                        studentName: '张三',
+                        type: 'academic',
+                        title: '数学期中考试优秀',
+                        description: '在数学期中考试中取得了95分的好成绩，展现了扎实的数学基础。',
+                        date: '2024-01-15',
+                        score: 95,
+                        tags: ['数学', '考试', '优秀'],
+                        grade: 'grade3'
+                    },
+                    {
+                        id: 2,
+                        studentId: 2,
+                        studentName: '李四',
+                        type: 'behavior',
+                        title: '乐于助人表现',
+                        description: '主动帮助同学解决学习困难，展现了良好的品德。',
+                        date: '2024-01-14',
+                        score: 90,
+                        tags: ['品德', '助人', '优秀'],
+                        grade: 'grade4'
+                    },
+                    {
+                        id: 3,
+                        studentId: 3,
+                        studentName: '王五',
+                        type: 'activity',
+                        title: '参加校园文化节',
+                        description: '积极参与校园文化节活动，表演了精彩的节目。',
+                        date: '2024-01-13',
+                        score: 88,
+                        tags: ['活动', '文化节', '表演'],
+                        grade: 'grade5'
+                    },
+                    {
+                        id: 4,
+                        studentId: 1,
+                        studentName: '张三',
+                        type: 'achievement',
+                        title: '获得三好学生称号',
+                        description: '因表现优秀，获得本学期三好学生称号。',
+                        date: '2024-01-12',
+                        score: 100,
+                        tags: ['荣誉', '三好学生', '优秀'],
+                        grade: 'grade3'
+                    }
+                ];
+                localStorage.setItem('admin_growthRecords', JSON.stringify(growthRecords));
+            }
+        }
+
+        // 保存成长记录数据
+        function saveGrowthRecords() {
+            localStorage.setItem('admin_growthRecords', JSON.stringify(growthRecords));
+        }
+
+        // 渲染成长记录列表
+        function renderGrowthRecords() {
+            const grid = document.getElementById('growth-records-grid');
+            grid.innerHTML = growthRecords.map(record => `
+                <div class="growth-card bg-white border border-gray-200 rounded-lg p-6 cursor-pointer hover:border-purple-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                <span class="text-sm font-medium text-purple-600">${record.studentName.charAt(0)}</span>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-gray-900">${record.studentName}</h3>
+                                <p class="text-xs text-gray-500">${getGradeName(record.grade)}</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs rounded-full ${
+                            record.type === 'academic' ? 'bg-blue-100 text-blue-800' :
+                            record.type === 'behavior' ? 'bg-green-100 text-green-800' :
+                            record.type === 'activity' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-purple-100 text-purple-800'
+                        }">
+                            ${getTypeName(record.type)}
+                        </span>
+                    </div>
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">${record.title}</h4>
+                    <p class="text-xs text-gray-600 mb-3 line-clamp-2">${record.description}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>${record.date}</span>
+                        <span>评分: ${record.score}/100</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        ${record.tags.map(tag => `
+                            <span class="inline-flex px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">${tag}</span>
+                        `).join('')}
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex space-x-2">
+                            <button onclick="editRecord(${record.id}); event.stopPropagation();" class="p-1 text-gray-400 hover:text-purple-600">
+                                <i data-lucide="edit" class="h-3 w-3"></i>
+                            </button>
+                            <button onclick="deleteRecord(${record.id}); event.stopPropagation();" class="p-1 text-gray-400 hover:text-red-600">
+                                <i data-lucide="trash-2" class="h-3 w-3"></i>
+                            </button>
+                        </div>
+                        <div class="w-16 h-2 bg-gray-200 rounded-full">
+                            <div class="h-2 bg-purple-600 rounded-full progress-bar" style="width: ${record.score}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // 获取年级名称
+        function getGradeName(grade) {
+            const gradeNames = {
+                'grade1': '一年级',
+                'grade2': '二年级',
+                'grade3': '三年级',
+                'grade4': '四年级',
+                'grade5': '五年级',
+                'grade6': '六年级'
+            };
+            return gradeNames[grade] || grade;
+        }
+
+        // 获取类型名称
+        function getTypeName(type) {
+            const typeNames = {
+                'academic': '学业成绩',
+                'behavior': '行为表现',
+                'activity': '活动参与',
+                'achievement': '成就获得'
+            };
+            return typeNames[type] || type;
+        }
+
+        // 显示模态框
+        function showModal(title = '添加成长记录') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('record-modal').style.display = 'block';
+            document.getElementById('record-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        // 隐藏模态框
+        function hideModal() {
+            document.getElementById('record-modal').style.display = 'none';
+            document.getElementById('record-form').reset();
+        }
+
+        // 添加记录
+        function addRecord() {
+            showModal('添加成长记录');
+        }
+
+        // 编辑记录
+        function editRecord(recordId) {
+            const record = growthRecords.find(r => r.id === recordId);
+            if (record) {
+                showModal('编辑成长记录');
+                // 填充表单数据
+                document.getElementById('student-select').value = record.studentId;
+                document.getElementById('record-type').value = record.type;
+                document.getElementById('record-date').value = record.date;
+                document.getElementById('record-score').value = record.score;
+                document.getElementById('record-title').value = record.title;
+                document.getElementById('record-description').value = record.description;
+                document.getElementById('record-tags').value = record.tags.join(', ');
+                
+                // 添加记录ID到表单
+                const form = document.getElementById('record-form');
+                form.dataset.editId = recordId;
+            }
+        }
+
+        // 删除记录
+        function deleteRecord(recordId) {
+            if (confirm('确定要删除这条成长记录吗？')) {
+                growthRecords = growthRecords.filter(r => r.id !== recordId);
+                saveGrowthRecords();
+                renderGrowthRecords();
+                alert('记录删除成功！');
+            }
+        }
+
+        // 导出记录
+        function exportRecords() {
+            alert('导出功能开发中...');
+        }
+
+        // 批量编辑
+        function batchEdit() {
+            alert('批量编辑功能开发中...');
+        }
+
+        // 事件监听器
+        document.getElementById('add-record-btn').addEventListener('click', addRecord);
+        document.getElementById('export-records-btn').addEventListener('click', exportRecords);
+        document.getElementById('batch-edit-btn').addEventListener('click', batchEdit);
+        document.getElementById('cancel-btn').addEventListener('click', hideModal);
+
+        // 表单提交
+        document.getElementById('record-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const editId = e.target.dataset.editId;
+            
+            const newRecord = {
+                id: editId ? parseInt(editId) : Date.now(),
+                studentId: parseInt(formData.get('studentId')),
+                studentName: document.getElementById('student-select').selectedOptions[0].text,
+                type: formData.get('type'),
+                title: formData.get('title'),
+                description: formData.get('description'),
+                date: formData.get('date'),
+                score: parseInt(formData.get('score')) || 0,
+                tags: formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag),
+                grade: 'grade3' // 这里可以根据学生信息获取年级
+            };
+            
+            if (editId) {
+                // 编辑现有记录
+                const index = growthRecords.findIndex(r => r.id === parseInt(editId));
+                if (index !== -1) {
+                    growthRecords[index] = newRecord;
+                }
+            } else {
+                // 添加新记录
+                growthRecords.push(newRecord);
+            }
+            
+            saveGrowthRecords();
+            renderGrowthRecords();
+            hideModal();
+            alert(editId ? '记录更新成功！' : '记录添加成功！');
+        });
+
+        // 初始化页面
+        loadGrowthRecords();
+        renderGrowthRecords();
+    </script>
+</body>
+</html> 

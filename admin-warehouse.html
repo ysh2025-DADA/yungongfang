@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教育平台 - 仓库管理</title>
+    <title>云工坊 - 仓库管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,6 +19,7 @@
         .status-rejected { background-color: #fee2e2; color: #dc2626; }
         .status-borrowed { background-color: #dbeafe; color: #2563eb; }
         .status-returned { background-color: #f3f4f6; color: #6b7280; }
+        .status-collected { background-color: #dcfce7; color: #16a34a; }
         .item-card { transition: all 0.2s ease; }
         .item-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     </style>
@@ -31,7 +32,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
                         <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
-                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                        <span class="ml-2 text-xl font-bold text-gray-900">云工坊</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -53,8 +54,11 @@
                     <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-users.html'">
                         <i data-lucide="users" class="h-5 w-5 mr-3"></i>用户管理
                     </div>
-                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
-                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>课程管理
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-growth-records.html'">
+                        <i data-lucide="trending-up" class="h-5 w-5 mr-3"></i>成长记录
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-attendance.html'">
+                        <i data-lucide="clock" class="h-5 w-5 mr-3"></i>签到签退
                     </div>
                     <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
                         <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>资料管理
@@ -230,7 +234,7 @@
                     <div class="bg-white rounded-lg shadow-sm p-6 border mb-6">
                         <div class="flex flex-wrap gap-4">
                             <button id="tab-inventory" class="tab-btn active px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium transition-colors">物品清点</button>
-                            <button id="tab-borrow" class="tab-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">借用管理</button>
+                            <button id="tab-borrow" class="tab-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">借用/领用管理</button>
                             <button id="tab-apply" class="tab-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">申请审批</button>
                         </div>
                     </div>
@@ -289,15 +293,64 @@
 
                     <!-- 借用管理页面 -->
                     <div id="borrow-page" class="space-y-6 hidden">
+                        <!-- 统计卡片 -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                            <div class="bg-white rounded-lg shadow-sm p-6 border">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-blue-100 rounded-lg">
+                                        <i data-lucide="clock" class="h-6 w-6 text-blue-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm font-medium text-gray-600">借用中</p>
+                                        <p class="text-2xl font-bold text-gray-900" id="borrowed-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-lg shadow-sm p-6 border">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-green-100 rounded-lg">
+                                        <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm font-medium text-gray-600">已归还</p>
+                                        <p class="text-2xl font-bold text-gray-900" id="returned-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-lg shadow-sm p-6 border">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-purple-100 rounded-lg">
+                                        <i data-lucide="package" class="h-6 w-6 text-purple-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm font-medium text-gray-600">已领用</p>
+                                        <p class="text-2xl font-bold text-gray-900" id="collected-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-lg shadow-sm p-6 border">
+                                <div class="flex items-center">
+                                    <div class="p-2 bg-orange-100 rounded-lg">
+                                        <i data-lucide="calendar" class="h-6 w-6 text-orange-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm font-medium text-gray-600">即将到期</p>
+                                        <p class="text-2xl font-bold text-gray-900" id="expiring-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="bg-white rounded-lg shadow-sm border">
                             <div class="p-6">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">借用记录</h3>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">借用/领用记录</h3>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">借用人</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">物品</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">借用时间</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">应还时间</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
@@ -333,113 +386,174 @@
         // 初始化Lucide图标
         lucide.createIcons();
 
-        // 模拟数字仓库数据
-        let digitalRepositories = [
-            {
-                id: 1,
-                name: '数学学习资料',
-                type: 'learning',
-                description: '高等数学、线性代数等数学相关学习资料',
-                access: 'public',
-                size: '2.3GB',
-                fileCount: 156,
-                createTime: '2024-01-01'
-            },
-            {
-                id: 2,
-                name: '计算机课程资源',
-                type: 'course',
-                description: '编程语言、数据结构等计算机课程资源',
-                access: 'students',
-                size: '4.7GB',
-                fileCount: 234,
-                createTime: '2024-01-05'
-            },
-            {
-                id: 3,
-                name: 'PPT模板库',
-                type: 'template',
-                description: '各类教学PPT模板和素材',
-                access: 'teachers',
-                size: '1.8GB',
-                fileCount: 89,
-                createTime: '2024-01-10'
-            },
-            {
-                id: 4,
-                name: '教学视频库',
-                type: 'media',
-                description: '录制的教学视频和多媒体资源',
-                access: 'public',
-                size: '15.2GB',
-                fileCount: 567,
-                createTime: '2024-01-15'
+        // 初始化数据存储
+        function initializeData() {
+            // 检查localStorage中是否已有数据，如果没有则初始化默认数据
+            if (!localStorage.getItem('warehouse_digitalRepositories')) {
+                const defaultDigitalRepositories = [
+                    {
+                        id: 1,
+                        name: '数学学习资料',
+                        type: 'learning',
+                        description: '高等数学、线性代数等数学相关学习资料',
+                        access: 'public',
+                        size: '2.3GB',
+                        fileCount: 156,
+                        createTime: '2024-01-01'
+                    },
+                    {
+                        id: 2,
+                        name: '计算机课程资源',
+                        type: 'course',
+                        description: '编程语言、数据结构等计算机课程资源',
+                        access: 'students',
+                        size: '4.7GB',
+                        fileCount: 234,
+                        createTime: '2024-01-05'
+                    },
+                    {
+                        id: 3,
+                        name: 'PPT模板库',
+                        type: 'template',
+                        description: '各类教学PPT模板和素材',
+                        access: 'teachers',
+                        size: '1.8GB',
+                        fileCount: 89,
+                        createTime: '2024-01-10'
+                    },
+                    {
+                        id: 4,
+                        name: '教学视频库',
+                        type: 'media',
+                        description: '录制的教学视频和多媒体资源',
+                        access: 'public',
+                        size: '15.2GB',
+                        fileCount: 567,
+                        createTime: '2024-01-15'
+                    }
+                ];
+                localStorage.setItem('warehouse_digitalRepositories', JSON.stringify(defaultDigitalRepositories));
             }
-        ];
 
-        // 模拟物品数据
-        let items = [
-            {
-                id: 1,
-                name: '投影仪',
-                category: 'equipment',
-                quantity: 15,
-                unit: '台',
-                location: 'A区-01-01',
-                manager: '张老师',
-                description: '教学用投影仪，支持高清显示',
-                status: 'available',
-                borrowed: 3
-            },
-            {
-                id: 2,
-                name: '笔记本电脑',
-                category: 'electronics',
-                quantity: 25,
-                unit: '台',
-                location: 'B区-02-03',
-                manager: '李老师',
-                description: '教学用笔记本电脑，配置齐全',
-                status: 'available',
-                borrowed: 8
+            if (!localStorage.getItem('warehouse_items')) {
+                const defaultItems = [
+                    {
+                        id: 1,
+                        name: '投影仪',
+                        category: 'equipment',
+                        quantity: 15,
+                        unit: '台',
+                        location: 'A区-01-01',
+                        manager: '张老师',
+                        description: '教学用投影仪，支持高清显示',
+                        status: 'available',
+                        borrowed: 3
+                    },
+                    {
+                        id: 2,
+                        name: '笔记本电脑',
+                        category: 'electronics',
+                        quantity: 25,
+                        unit: '台',
+                        location: 'B区-02-03',
+                        manager: '李老师',
+                        description: '教学用笔记本电脑，配置齐全',
+                        status: 'available',
+                        borrowed: 8
+                    }
+                ];
+                localStorage.setItem('warehouse_items', JSON.stringify(defaultItems));
             }
-        ];
 
-        // 模拟借用记录
-        let borrowRecords = [
-            {
-                id: 1,
-                borrower: '张三',
-                itemName: '投影仪',
-                borrowTime: '2024-01-15',
-                returnTime: '2024-01-20',
-                status: 'borrowed'
-            },
-            {
-                id: 2,
-                borrower: '李四',
-                itemName: '笔记本电脑',
-                borrowTime: '2024-01-10',
-                returnTime: '2024-01-18',
-                status: 'returned'
+            if (!localStorage.getItem('warehouse_borrowRecords')) {
+                const defaultBorrowRecords = [
+                    {
+                        id: 1,
+                        borrower: '张三',
+                        itemName: '投影仪',
+                        type: 'borrow', // 借用类型
+                        borrowTime: '2024-01-15',
+                        returnTime: '2024-01-20',
+                        status: 'borrowed'
+                    },
+                    {
+                        id: 2,
+                        borrower: '李四',
+                        itemName: '笔记本电脑',
+                        type: 'borrow', // 借用类型
+                        borrowTime: '2024-01-10',
+                        returnTime: '2024-01-18',
+                        status: 'returned'
+                    },
+                    {
+                        id: 3,
+                        borrower: '王老师',
+                        itemName: '实验器材',
+                        type: 'collect', // 领用类型
+                        borrowTime: '2024-01-12',
+                        returnTime: null, // 领用无需归还时间
+                        status: 'collected'
+                    }
+                ];
+                localStorage.setItem('warehouse_borrowRecords', JSON.stringify(defaultBorrowRecords));
             }
-        ];
 
-        // 模拟申请记录
-        let applications = [
-            {
-                id: 1,
-                applicant: '陈老师',
-                itemName: '投影仪',
-                quantity: 2,
-                purpose: '下周公开课使用',
-                applyTime: '2024-01-16',
-                status: 'pending'
+            if (!localStorage.getItem('warehouse_applications')) {
+                const defaultApplications = [
+                    {
+                        id: 1,
+                        applicant: '陈老师',
+                        itemName: '投影仪',
+                        quantity: 2,
+                        purpose: '下周公开课使用',
+                        applyTime: '2024-01-16',
+                        status: 'pending'
+                    }
+                ];
+                localStorage.setItem('warehouse_applications', JSON.stringify(defaultApplications));
             }
-        ];
+        }
+
+        // 获取数据函数
+        function getDigitalRepositories() {
+            return JSON.parse(localStorage.getItem('warehouse_digitalRepositories') || '[]');
+        }
+
+        function getItems() {
+            return JSON.parse(localStorage.getItem('warehouse_items') || '[]');
+        }
+
+        function getBorrowRecords() {
+            return JSON.parse(localStorage.getItem('warehouse_borrowRecords') || '[]');
+        }
+
+        function getApplications() {
+            return JSON.parse(localStorage.getItem('warehouse_applications') || '[]');
+        }
+
+        // 保存数据函数
+        function saveDigitalRepositories(data) {
+            localStorage.setItem('warehouse_digitalRepositories', JSON.stringify(data));
+        }
+
+        function saveItems(data) {
+            localStorage.setItem('warehouse_items', JSON.stringify(data));
+        }
+
+        function saveBorrowRecords(data) {
+            localStorage.setItem('warehouse_borrowRecords', JSON.stringify(data));
+        }
+
+        function saveApplications(data) {
+            localStorage.setItem('warehouse_applications', JSON.stringify(data));
+        }
+
+        // 初始化数据
+        initializeData();
 
         // 渲染数字仓库
         function renderDigitalRepositories() {
+            const digitalRepositories = getDigitalRepositories();
             const container = document.getElementById('digital-repositories');
             container.innerHTML = digitalRepositories.map(repo => `
                 <div class="item-card bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-purple-300">
@@ -482,6 +596,7 @@
 
         // 渲染物品列表
         function renderItems() {
+            const items = getItems();
             const tbody = document.getElementById('items-table-body');
             tbody.innerHTML = items.map(item => `
                 <tr class="item-card hover:bg-gray-50">
@@ -518,40 +633,97 @@
                             <button onclick="editItem(${item.id})" class="text-purple-600 hover:text-purple-900">编辑</button>
                             <button onclick="deleteItem(${item.id})" class="text-red-600 hover:text-red-900">删除</button>
                             <button onclick="borrowItem(${item.id})" class="text-blue-600 hover:text-blue-900">借用</button>
+                            <button onclick="collectItem(${item.id})" class="text-green-600 hover:text-green-900">领用</button>
                         </div>
                     </td>
                 </tr>
             `).join('');
+        }
+
+        // 更新统计信息
+        function updateBorrowStats() {
+            const borrowRecords = getBorrowRecords();
+            const today = new Date().toISOString().split('T')[0];
+            
+            const borrowedCount = borrowRecords.filter(r => r.status === 'borrowed').length;
+            const returnedCount = borrowRecords.filter(r => r.status === 'returned').length;
+            const collectedCount = borrowRecords.filter(r => r.status === 'collected').length;
+            const expiringCount = borrowRecords.filter(r => 
+                r.type === 'borrow' && 
+                r.status === 'borrowed' && 
+                r.returnTime && 
+                r.returnTime <= today
+            ).length;
+            
+            document.getElementById('borrowed-count').textContent = borrowedCount;
+            document.getElementById('returned-count').textContent = returnedCount;
+            document.getElementById('collected-count').textContent = collectedCount;
+            document.getElementById('expiring-count').textContent = expiringCount;
         }
 
         // 渲染借用记录
         function renderBorrowRecords() {
+            const borrowRecords = getBorrowRecords();
             const tbody = document.getElementById('borrow-table-body');
-            tbody.innerHTML = borrowRecords.map(record => `
-                <tr class="hover:bg-gray-50">
+            tbody.innerHTML = borrowRecords.map(record => {
+                const today = new Date().toISOString().split('T')[0];
+                const isExpiring = record.type === 'borrow' && 
+                                 record.status === 'borrowed' && 
+                                 record.returnTime && 
+                                 record.returnTime <= today;
+                const isNearExpiring = record.type === 'borrow' && 
+                                     record.status === 'borrowed' && 
+                                     record.returnTime && 
+                                     new Date(record.returnTime) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+                
+                return `
+                <tr class="hover:bg-gray-50 ${isExpiring ? 'bg-red-50' : isNearExpiring ? 'bg-yellow-50' : ''}">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.borrower}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.itemName}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.borrowTime}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.returnTime}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="inline-flex px-2 py-1 text-xs rounded-full ${
-                            record.status === 'borrowed' ? 'status-borrowed' : 'status-returned'
+                            record.type === 'borrow' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                         }">
-                            ${record.status === 'borrowed' ? '借用中' : '已归还'}
+                            ${record.type === 'borrow' ? '借用' : '领用'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.borrowTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${record.returnTime || '-'}
+                        ${isExpiring ? '<br><span class="text-red-600 text-xs">已逾期</span>' : 
+                          isNearExpiring ? '<br><span class="text-yellow-600 text-xs">即将到期</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs rounded-full ${
+                            record.status === 'borrowed' ? 'status-borrowed' :
+                            record.status === 'returned' ? 'status-returned' :
+                            record.status === 'collected' ? 'status-collected' : 'bg-gray-100 text-gray-800'
+                        }">
+                            ${record.status === 'borrowed' ? '借用中' : 
+                              record.status === 'returned' ? '已归还' :
+                              record.status === 'collected' ? '已领用' : '未知'}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
-                            <button onclick="returnItem(${record.id})" class="text-green-600 hover:text-green-900">归还</button>
-                            <button onclick="extendBorrow(${record.id})" class="text-blue-600 hover:text-blue-900">延期</button>
+                            ${record.type === 'borrow' && record.status === 'borrowed' ? 
+                                `<button onclick="returnItem(${record.id})" class="text-green-600 hover:text-green-900">归还</button>
+                                 <button onclick="extendBorrow(${record.id})" class="text-blue-600 hover:text-blue-900">延期</button>` :
+                                record.type === 'collect' ? 
+                                `<span class="text-gray-500">无需归还</span>` :
+                                `<span class="text-gray-500">-</span>`
+                            }
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
+            updateBorrowStats();
         }
 
         // 渲染申请记录
         function renderApplications() {
+            const applications = getApplications();
             const container = document.getElementById('pending-applications');
             container.innerHTML = applications.filter(app => app.status === 'pending').map(app => `
                 <div class="border border-gray-200 rounded-lg p-4">
@@ -647,7 +819,9 @@
 
         function deleteDigitalRepo(repoId) {
             if (confirm('确定要删除这个数字仓库吗？')) {
-                digitalRepositories = digitalRepositories.filter(repo => repo.id !== repoId);
+                const digitalRepositories = getDigitalRepositories();
+                const updatedRepositories = digitalRepositories.filter(repo => repo.id !== repoId);
+                saveDigitalRepositories(updatedRepositories);
                 renderDigitalRepositories();
                 alert('数字仓库删除成功！');
             }
@@ -660,36 +834,172 @@
 
         function deleteItem(itemId) {
             if (confirm('确定要删除这个物品吗？')) {
-                items = items.filter(item => item.id !== itemId);
+                const items = getItems();
+                const updatedItems = items.filter(item => item.id !== itemId);
+                saveItems(updatedItems);
                 renderItems();
                 alert('物品删除成功！');
             }
         }
 
         function borrowItem(itemId) {
-            alert(`借用物品功能开发中...\n物品ID: ${itemId}`);
+            const items = getItems();
+            const item = items.find(i => i.id === itemId);
+            if (!item) {
+                alert('物品不存在！');
+                return;
+            }
+            
+            if (item.quantity <= item.borrowed) {
+                alert('该物品库存不足，无法借用！');
+                return;
+            }
+            
+            const borrower = prompt('请输入借用人姓名：');
+            if (!borrower) return;
+            
+            const borrowTime = new Date().toISOString().split('T')[0];
+            const returnTime = prompt('请输入应还时间（YYYY-MM-DD）：', 
+                new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+            if (!returnTime) return;
+            
+            // 创建借用记录
+            const borrowRecords = getBorrowRecords();
+            const newRecord = {
+                id: Date.now(),
+                borrower: borrower,
+                itemName: item.name,
+                type: 'borrow',
+                borrowTime: borrowTime,
+                returnTime: returnTime,
+                status: 'borrowed'
+            };
+            
+            borrowRecords.push(newRecord);
+            saveBorrowRecords(borrowRecords);
+            
+            // 更新物品借用数量
+            item.borrowed += 1;
+            saveItems(items);
+            
+            renderBorrowRecords();
+            renderItems();
+            alert('借用成功！');
         }
 
         function returnItem(recordId) {
+            const borrowRecords = getBorrowRecords();
+            const record = borrowRecords.find(r => r.id === recordId);
+            if (!record) {
+                alert('记录不存在！');
+                return;
+            }
+            
+            if (record.type !== 'borrow') {
+                alert('只有借用类型的物品才能归还！');
+                return;
+            }
+            
+            if (record.status !== 'borrowed') {
+                alert('该物品已经归还！');
+                return;
+            }
+            
             if (confirm('确认归还此物品？')) {
-                const record = borrowRecords.find(r => r.id === recordId);
-                if (record) {
-                    record.status = 'returned';
-                    renderBorrowRecords();
-                    alert('物品归还成功！');
+                record.status = 'returned';
+                saveBorrowRecords(borrowRecords);
+                
+                // 更新物品借用数量
+                const items = getItems();
+                const item = items.find(i => i.name === record.itemName);
+                if (item) {
+                    item.borrowed = Math.max(0, item.borrowed - 1);
+                    saveItems(items);
+                    renderItems();
                 }
+                
+                renderBorrowRecords();
+                alert('物品归还成功！');
             }
         }
 
+        function collectItem(itemId) {
+            const items = getItems();
+            const item = items.find(i => i.id === itemId);
+            if (!item) {
+                alert('物品不存在！');
+                return;
+            }
+            
+            if (item.quantity <= item.borrowed) {
+                alert('该物品库存不足，无法领用！');
+                return;
+            }
+            
+            const collector = prompt('请输入领用人姓名：');
+            if (!collector) return;
+            
+            const collectTime = new Date().toISOString().split('T')[0];
+            
+            // 创建领用记录
+            const borrowRecords = getBorrowRecords();
+            const newRecord = {
+                id: Date.now(),
+                borrower: collector,
+                itemName: item.name,
+                type: 'collect',
+                borrowTime: collectTime,
+                returnTime: null, // 领用无需归还时间
+                status: 'collected'
+            };
+            
+            borrowRecords.push(newRecord);
+            saveBorrowRecords(borrowRecords);
+            
+            // 更新物品借用数量（领用也计入借用数量，因为物品离开仓库）
+            item.borrowed += 1;
+            saveItems(items);
+            
+            renderBorrowRecords();
+            renderItems();
+            alert('领用成功！');
+        }
+
         function extendBorrow(recordId) {
-            alert(`延期借用功能开发中...\n记录ID: ${recordId}`);
+            const borrowRecords = getBorrowRecords();
+            const record = borrowRecords.find(r => r.id === recordId);
+            if (!record) {
+                alert('记录不存在！');
+                return;
+            }
+            
+            if (record.type !== 'borrow') {
+                alert('只有借用类型的物品才能延期！');
+                return;
+            }
+            
+            if (record.status !== 'borrowed') {
+                alert('只有借用中的物品才能延期！');
+                return;
+            }
+            
+            const newReturnTime = prompt('请输入新的应还时间（YYYY-MM-DD）：', 
+                new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+            if (!newReturnTime) return;
+            
+            record.returnTime = newReturnTime;
+            saveBorrowRecords(borrowRecords);
+            renderBorrowRecords();
+            alert('延期成功！');
         }
 
         function approveApplication(appId) {
             if (confirm('确认批准此申请？')) {
+                const applications = getApplications();
                 const app = applications.find(a => a.id === appId);
                 if (app) {
                     app.status = 'approved';
+                    saveApplications(applications);
                     renderApplications();
                     alert('申请已批准！');
                 }
@@ -698,9 +1008,11 @@
 
         function rejectApplication(appId) {
             if (confirm('确认拒绝此申请？')) {
+                const applications = getApplications();
                 const app = applications.find(a => a.id === appId);
                 if (app) {
                     app.status = 'rejected';
+                    saveApplications(applications);
                     renderApplications();
                     alert('申请已拒绝！');
                 }
@@ -737,6 +1049,7 @@
         renderItems();
         renderBorrowRecords();
         renderApplications();
+        updateBorrowStats();
     </script>
 </body>
 </html> 

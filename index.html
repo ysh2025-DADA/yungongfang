@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教育平台 - 登录</title>
+    <title>云工坊 - 登录</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
                 <i data-lucide="graduation-cap" class="h-8 w-8 text-white"></i>
             </div>
             <h2 class="text-3xl font-bold text-gray-900 mb-2">
-                教育平台
+                云工坊
             </h2>
             <p class="text-gray-600">
                 学习、资料共享、问题解答、计划发布、成绩记录
@@ -381,7 +381,7 @@
                         status: 'active'
                     };
                     sessionStorage.setItem('currentUser', JSON.stringify(adminUser));
-                    alert('✅ 管理员登录成功！\n欢迎使用教育平台管理系统');
+                    alert('✅ 管理员登录成功！\n欢迎使用云工坊');
                     // 跳转到管理员主页面
                     window.location.href = 'admin-dashboard.html';
                 } else {

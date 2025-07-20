@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教育平台 - 导航中心</title>
+    <title>云工坊 - 导航中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
                         <i data-lucide="graduation-cap" class="h-8 w-8 text-blue-600"></i>
-                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台 - 导航中心</span>
+                        <span class="ml-2 text-xl font-bold text-gray-900">云工坊 - 导航中心</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -39,7 +39,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- 页面标题 -->
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">教育平台功能导航</h1>
+                            <h1 class="text-4xl font-bold text-gray-900 mb-4">云工坊功能导航</h1>
             <p class="text-xl text-gray-600">选择您要访问的功能模块</p>
         </div>
 
@@ -172,12 +172,19 @@
                     <p class="text-gray-600 text-sm">学生、教师账号管理、角色分配</p>
                 </div>
 
-                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-courses.html'">
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-growth-records.html'">
                     <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                        <i data-lucide="book-open" class="h-6 w-6 text-purple-600"></i>
+                        <i data-lucide="trending-up" class="h-6 w-6 text-purple-600"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">课程管理</h3>
-                    <p class="text-gray-600 text-sm">课程创建、编辑、删除、教师分配</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">成长记录</h3>
+                    <p class="text-gray-600 text-sm">学生成长记录、学习进度、成就管理</p>
+                </div>
+                <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-attendance.html'">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                        <i data-lucide="clock" class="h-6 w-6 text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">签到签退</h3>
+                    <p class="text-gray-600 text-sm">学生签到签退、考勤统计、记录管理</p>
                 </div>
 
                 <div class="nav-card bg-white rounded-lg shadow-sm border p-6 cursor-pointer" onclick="window.location.href='admin-materials.html'">

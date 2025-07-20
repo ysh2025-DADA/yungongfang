@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教育平台 - 管理员控制台</title>
+    <title>云工坊 - 管理员控制台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
                         <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
-                        <span class="ml-2 text-xl font-bold text-gray-900">教育平台管理系统</span>
+                        <span class="ml-2 text-xl font-bold text-gray-900">云工坊</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -59,9 +59,13 @@
                         <i data-lucide="users" class="h-5 w-5 mr-3"></i>
                         用户管理
                     </div>
-                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-courses.html'">
-                        <i data-lucide="book-open" class="h-5 w-5 mr-3"></i>
-                        课程管理
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-growth-records.html'">
+                        <i data-lucide="trending-up" class="h-5 w-5 mr-3"></i>
+                        成长记录
+                    </div>
+                    <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-attendance.html'">
+                        <i data-lucide="clock" class="h-5 w-5 mr-3"></i>
+                        签到签退
                     </div>
                     <div class="sidebar-item flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg cursor-pointer hover:text-purple-700" onclick="window.location.href='admin-materials.html'">
                         <i data-lucide="file-text" class="h-5 w-5 mr-3"></i>
@@ -133,11 +137,11 @@
                     <div class="bg-white rounded-lg shadow-sm p-6 border">
                         <div class="flex items-center">
                             <div class="p-2 bg-purple-100 rounded-lg">
-                                <i data-lucide="file-text" class="h-6 w-6 text-purple-600"></i>
+                                <i data-lucide="trending-up" class="h-6 w-6 text-purple-600"></i>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">课程数量</p>
-                                <p class="text-2xl font-bold text-gray-900">89</p>
+                                <p class="text-sm font-medium text-gray-600">成长记录</p>
+                                <p class="text-2xl font-bold text-gray-900">156</p>
                             </div>
                         </div>
                     </div>
@@ -203,9 +207,9 @@
                             <i data-lucide="user-plus" class="h-8 w-8 text-blue-600 mb-2"></i>
                             <span class="text-sm font-medium text-gray-700">添加用户</span>
                         </button>
-                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            <i data-lucide="book-plus" class="h-8 w-8 text-green-600 mb-2"></i>
-                            <span class="text-sm font-medium text-gray-700">创建课程</span>
+                        <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors" onclick="window.location.href='admin-growth-records.html'">
+                            <i data-lucide="trending-up" class="h-8 w-8 text-green-600 mb-2"></i>
+                            <span class="text-sm font-medium text-gray-700">成长记录</span>
                         </button>
                         <button class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                             <i data-lucide="file-plus" class="h-8 w-8 text-purple-600 mb-2"></i>
